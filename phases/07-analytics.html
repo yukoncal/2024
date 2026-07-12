@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 07 — Analytics & Scoring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo"><div class="logo-icon">▶</div><div><h1>YouTube Video Production</h1><span>Section 1 · Phase 07</span></div></a>
+      <nav class="main-nav"><a href="../index.html">Hub</a><a href="../mission-control.html">Mission Control</a><a href="01-trends.html" class="active">Section 1</a></nav>
+    </div>
+  </header>
+  <main class="container">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="../index.html">Hub</a> / Section 1 / Phase 07</div>
+      <h2>Phase 07 — Analytics & Scoring</h2>
+      <p class="text-muted">YouTube Analytics integration. Validate all criteria with AI trigger checks. Score system and AI final review.</p>
+      <span id="channel-badge" class="grade-badge grade-pending" style="display:none; margin-top:0.5rem;"></span>
+    </div>
+    <div class="phase-layout">
+      <div class="phase-main">
+        <div class="panel"><h3>Objective</h3><p class="text-small text-muted">Pull YouTube Analytics after publish. AI validates performance triggers. Composite score determines pass/fail before week-one evaluation.</p></div>
+        <div class="panel"><h3>Checklist <span id="checklist-progress" class="text-muted text-small"></span></h3><ul class="checklist" id="checklist"></ul></div>
+        <div class="panel"><h3>Analytics Metrics</h3>
+          <div class="score-grid">
+            <div class="score-item"><label>CTR (%)</label><input type="number" step="0.1" placeholder="6.0"></div>
+            <div class="score-item"><label>Avg View Duration</label><input type="text" placeholder="1:45"></div>
+            <div class="score-item"><label>Views (48h)</label><input type="number" placeholder="1000"></div>
+            <div class="score-item"><label>Impressions</label><input type="number" placeholder="15000"></div>
+          </div>
+        </div>
+        <div class="panel"><h3>AI Trigger Validation</h3><ul class="checklist">
+          <li><label>CTR trigger: ≥ 6% = PASS</label></li>
+          <li><label>Retention trigger: ≥ 50% avg viewed = PASS</label></li>
+          <li><label>Hook trigger: ≥ 70% still watching at 0:30 = PASS</label></li>
+          <li><label>AI final review aggregates all triggers into grade</label></li>
+        </ul></div>
+        <div class="panel"><h3>Continuous AI Prompts</h3><div id="prompt-rotator" class="prompt-box"></div></div>
+      </div>
+      <aside class="phase-sidebar">
+        <div class="panel"><h3>Score System</h3><div id="score-grid" class="score-grid"></div><div id="total-score" class="total-score pending" data-pass="70"><div class="value">—</div><div class="label">PENDING</div></div><p class="text-small text-muted mt-1">Grade: <span id="grade-badge" class="grade-badge grade-pending">PENDING</span></p></div>
+        <div class="panel"><h3>Feedback & Comments</h3><div id="feedback-list" class="feedback-list"></div><form id="feedback-form" class="feedback-form"><input type="text" name="author" placeholder="Your name"><textarea name="comment" placeholder="Analytics notes, AI review output..."></textarea><button type="submit" class="btn btn-primary">Post Feedback</button></form></div>
+        <div class="flex gap-1 flex-wrap"><a id="nav-prev" href="06-mission-control.html" class="btn">← Prev</a><a id="nav-next" href="08-week-one.html" class="btn btn-primary">Next →</a></div>
+      </aside>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="container">Phase 07 · Analytics & AI Final Review</div></footer>
+  <script src="../js/pipeline.js"></script><script src="../js/phase-init.js"></script>
+  <script>initPhase({ id: "phase-07-analytics", prev: "06-mission-control.html", next: "08-week-one.html",
+    checklist: ["Pull YouTube Analytics (48h post-publish)","Record CTR, views, impressions, retention","Run AI trigger validation on all metrics","AI final review — composite score","CTR ≥ 6% check","Retention curve analysis","Compare vs channel baseline","Document pass/fail per trigger","Log results to pipeline tracking"],
+    criteria: [{id:"ctr",label:"CTR Score",max:10},{id:"retention",label:"Retention Score",max:10},{id:"views",label:"Views vs Target",max:10},{id:"triggers",label:"AI Trigger Pass",max:10},{id:"final",label:"AI Final Review",max:10}],
+    prompts: ["PROMPT: Given YouTube Analytics — CTR [X]%, retention [Y]%, views [Z] — validate against triggers. Output PASS/FAIL per criterion and composite grade.","PROMPT: AI final review for [VIDEO]: list strengths, weaknesses, and 3 edits to improve CTR if below 6%.","TWEET: Analytics scored — [VIDEO] CTR [X]%. AI final review [PASS/FAIL]. #YouTubeAnalytics #Pipeline"]
+  });</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 01 — Trends & Research</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo">
+        <div class="logo-icon">▶</div>
+        <div><h1>YouTube Video Production</h1><span>Section 1 · Phase 01</span></div>
+      </a>
+      <nav class="main-nav">
+        <a href="../index.html">Hub</a>
+        <a href="../mission-control.html">Mission Control</a>
+        <a href="01-trends.html" class="active">Section 1</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="../index.html">Hub</a> / <a href="../index.html#section-1">Section 1</a> / Phase 01</div>
+      <h2>Phase 01 — Trends & Research</h2>
+      <p class="text-muted">Data scrape current video leaders. Analyze subscribers, viewers, thumbnails, hooks, A-roll and B-roll patterns.</p>
+      <span id="channel-badge" class="grade-badge grade-pending" style="display:none; margin-top:0.5rem;"></span>
+    </div>
+
+    <div class="phase-layout">
+      <div class="phase-main">
+        <div class="panel">
+          <h3>Objective</h3>
+          <p class="text-small text-muted">Identify what top-performing videos in your niche are doing to win subscribers and views. Feed findings into script drafts and thumbnail design.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Checklist <span id="checklist-progress" class="text-muted text-small"></span></h3>
+          <ul class="checklist" id="checklist"></ul>
+        </div>
+
+        <div class="panel">
+          <h3>Research Targets</h3>
+          <ul class="checklist">
+            <li><label>Thumbnail: high contrast, face/object focal point, 3-word max overlay</label></li>
+            <li><label>Hook: first 3 seconds — question, shock stat, or visual surprise</label></li>
+            <li><label>A-roll: talking head or avatar segments, 15–30 sec blocks</label></li>
+            <li><label>B-roll: cut every 3–5 seconds, maps/drones/base footage/stock</label></li>
+            <li><label>CTA pattern: subscribe prompt at 70% mark</label></li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h3>Continuous AI Prompts <span class="text-muted text-small">(rotating — tweet each cycle)</span></h3>
+          <div id="prompt-rotator" class="prompt-box"></div>
+          <p class="text-small text-muted">Copy prompt → run in AI tool → paste results in feedback below.</p>
+        </div>
+      </div>
+
+      <aside class="phase-sidebar">
+        <div class="panel">
+          <h3>Score System</h3>
+          <div id="score-grid" class="score-grid"></div>
+          <div id="total-score" class="total-score pending" data-pass="70">
+            <div class="value">—</div>
+            <div class="label">PENDING</div>
+          </div>
+          <p class="text-small text-muted mt-1">Grade: <span id="grade-badge" class="grade-badge grade-pending">PENDING</span></p>
+        </div>
+
+        <div class="panel">
+          <h3>Feedback & Comments</h3>
+          <div id="feedback-list" class="feedback-list"></div>
+          <form id="feedback-form" class="feedback-form">
+            <input type="text" name="author" placeholder="Your name">
+            <textarea name="comment" placeholder="Research notes, competitor links, feedback..."></textarea>
+            <button type="submit" class="btn btn-primary">Post Feedback</button>
+          </form>
+        </div>
+
+        <div class="flex gap-1 flex-wrap">
+          <span class="btn" style="opacity:0.5; cursor:default;">← Start</span>
+          <a id="nav-next" href="02-automation.html" class="btn btn-primary">Next Phase →</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer"><div class="container">Phase 01 · Trends & Research</div></footer>
+  <script src="../js/pipeline.js"></script>
+  <script src="../js/phase-init.js"></script>
+  <script>
+    initPhase({
+      id: "phase-01-trends",
+      next: "02-automation.html",
+      checklist: [
+        "Scrape top 10 videos in niche (views last 30 days)",
+        "Document thumbnail patterns (colors, text, faces)",
+        "Extract hook scripts from first 10 seconds",
+        "Map A-roll vs B-roll ratio per video",
+        "Identify subscriber CTA placement and wording",
+        "Log average video length of leaders",
+        "Export competitor data to shared spreadsheet",
+        "AI summary of winning patterns generated",
+        "Human reviewer signs off on research brief"
+      ],
+      criteria: [
+        { id: "coverage", label: "Competitor Coverage", max: 10 },
+        { id: "thumbnails", label: "Thumbnail Analysis", max: 10 },
+        { id: "hooks", label: "Hook Documentation", max: 10 },
+        { id: "roll", label: "A/B-Roll Mapping", max: 10 },
+        { id: "actionable", label: "Actionable Insights", max: 10 }
+      ],
+      prompts: [
+        "PROMPT: Analyze top 5 [CHANNEL] YouTube videos from last 30 days. List thumbnail elements, hook transcript (first 10 sec), A-roll/B-roll ratio, and subscriber CTA. Output as structured JSON.",
+        "PROMPT: Given these 10 competitor titles and thumbnails, score each 1-10 on CTR potential. Explain what visual triggers drive clicks.",
+        "PROMPT: Write 3 hook variants (question, stat shock, visual tease) for a 2-min video about [TOPIC]. Max 15 words each.",
+        "TWEET: New research cycle — scraping [NICHE] leaders for thumbnail + hook patterns. #YouTubePipeline #ContentStrategy"
+      ]
+    });
+  </script>
+</body>
+</html>
