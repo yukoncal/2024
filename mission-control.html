@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mission Control — YouTube Pipeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo">
+        <div class="logo-icon">▶</div>
+        <div>
+          <h1>YouTube Video Production</h1>
+          <span>Mission Control Pipeline</span>
+        </div>
+      </a>
+      <nav class="main-nav">
+        <a href="../index.html">Hub</a>
+        <a href="mission-control.html" class="active">Mission Control</a>
+        <a href="phases/01-trends.html">Section 1</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">Hub</a> / Mission Control</div>
+      <h2>Mission Control Dashboard</h2>
+      <p class="text-muted">Team overview — grades, pipeline status, CTR targets, and phase progress across all channels.</p>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="metric-card">
+        <div class="metric-value" id="metric-channels">3</div>
+        <div class="metric-label">Active Channels</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="metric-phases-pass">0</div>
+        <div class="metric-label">Phases Passing (of 9)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="metric-phases-pending">9</div>
+        <div class="metric-label">Phases Pending Review</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">6%</div>
+        <div class="metric-label">CTR Pass Threshold</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Channel Pipeline Status</h3>
+      <table class="tracking-table">
+        <thead>
+          <tr>
+            <th>Channel</th>
+            <th>Phases Complete</th>
+            <th>Avg Score</th>
+            <th>Grade</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="pipeline-tracking-body"></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Phase Status — Section 1</h3>
+      <table class="tracking-table">
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Score</th>
+            <th>Grade</th>
+            <th>Last Updated</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="phase-status-body"></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Grading Criteria Summary</h3>
+      <ul class="checklist">
+        <li><label>Pass threshold: 70% composite score across phase criteria</label></li>
+        <li><label>CTR pass: ≥ 6% (Week One evaluation)</label></li>
+        <li><label>Video length: 2–3 minutes, hard cap under 3 minutes</label></li>
+        <li><label>Low scores: edit video, rerun AI review, resubmit to Mission Control</label></li>
+        <li><label>Goals: increase views, reply to all comments within 24h</label></li>
+        <li><label>Continuous prompts: rotate and tweet AI prompts each production cycle</label></li>
+      </ul>
+    </div>
+
+    <div class="alert alert-warning">
+      <strong>Human-in-Loop:</strong> AI automation handles drafts, scoring, and trigger checks. A human operator must approve each phase before Mission Control submission.
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">Mission Control · Submitted videos awaiting approval appear in Phase 06</div>
+  </footer>
+
+  <script src="js/pipeline.js"></script>
+</body>
+</html>
