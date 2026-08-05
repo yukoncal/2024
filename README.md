@@ -1,3 +1,11 @@
+# 2024 Project Hub
+
+This repository contains two main projects:
+1. **Ollama to Cursor Connection**: Scripts and docs to use local models (like Qwen3.5 9B) in Cursor Desktop.
+2. **YouTube Video Production Pipeline**: A Mission Control hub for managing a three-channel video production pipeline.
+
+---
+
 # Connect Ollama to Cursor
 
 Your Ollama OpenAI-compatible API is live at:
@@ -26,6 +34,19 @@ Do **not** append `/chat/completions` — Cursor adds that path itself.
 | OpenAI API Key | `ollama` |
 | Override OpenAI Base URL | `https://brought-passage-trapeze.ngrok-free.dev/v1` |
 | Add model | `qwen2.5-coder:latest` |
+
+## YouTube Video Production Pipeline
+
+A static site hub for managing production across three channels: **Drone Technology**, **Military Bases**, and **Family**.
+
+- **Hub**: `index.html`
+- **Dashboard**: `mission-control.html`
+- **Phases**: `phases/` (9 phases with checklists and scoring)
+
+To view the pipeline hub:
+```bash
+python3 -m http.server 8080
+```
 
 ## Available models
 
