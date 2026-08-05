@@ -4,6 +4,10 @@
 function initPhase(config) {
   const { id, checklist, criteria, prompts, passThreshold = 70 } = config;
 
+  // Save config for dashboard use
+  const configKey = "yt-pipeline-config-" + id;
+  localStorage.setItem(configKey, JSON.stringify({ criteria, passThreshold }));
+
   document.addEventListener("DOMContentLoaded", () => {
     initChecklist(id, checklist);
     initScoring(id, criteria);

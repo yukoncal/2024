@@ -1,47 +1,64 @@
-# YouTube Video Production Pipeline
+# Connect Ollama to Cursor
 
-Mission Control hub for a three-channel YouTube production pipeline: **Drone Technology**, **Military Bases**, and **Family**.
+Your Ollama OpenAI-compatible API is live at:
 
-## Quick Start
-
-Open `index.html` in a browser (or serve locally):
-
-```bash
-python3 -m http.server 8080
-# Visit http://localhost:8080
+```text
+https://brought-passage-trapeze.ngrok-free.dev/v1
 ```
 
-## Structure
+Verified: Ollama chat completions working (`qwen2.5-coder:latest` → `ollama-ok`).
 
-| Page | Purpose |
-|------|---------|
-| `index.html` | Main hub — channels + Section 1 pipeline links |
-| `mission-control.html` | Team dashboard — grades, phase status, CTR targets |
-| `channels/` | Per-channel hubs with video queue and phase links |
-| `phases/` | 9 phase sub-pages with checklists, scores, feedback |
+## Cursor Settings → Models (Desktop)
 
-## Pipeline Phases (Section 1)
+Cloud Agent tabs keep showing the hosted Cursor model (e.g. Grok). Wire Ollama in **Cursor Desktop**:
 
-1. **Trends & Research** — Scrape leaders, analyze thumbnails, hooks, A/B-roll
-2. **Automation & Drafts** — Scripts, screenshots every 3–5 sec
-3. **Avatar Narrative** — Sentinel 1 Tactical Operations Officer (faceless)
-4. **Strategy Session** — War planning, cost, warriors strategy
-5. **AI Review & Testing** — Human-in-loop validation
-6. **Mission Control Submit** — 2–3 min video (under 3 min)
-7. **Analytics & Scoring** — YouTube analytics, AI triggers, final review
-8. **Week One Evaluation** — CTR pass ≥ 6%, edit if low
-9. **Pipeline Tracking** — Views, comments, continuous prompts
+1. Open **Cursor Desktop** → **Settings** → **Models**
+2. **OpenAI API Key:** `ollama` (any non-empty string)
+3. **Override OpenAI Base URL:** `https://brought-passage-trapeze.ngrok-free.dev/v1`
+4. **Add custom model:** `qwen2.5-coder:latest` (or `qwen359b`)
+5. In the chat model picker, turn **Auto** off and select that model
+6. Send: `Reply with exactly: ollama-ok`
 
-## Team Features
+Do **not** append `/chat/completions` — Cursor adds that path itself.
 
-- **Checklists** — Per-phase tasks (saved in browser localStorage)
-- **Score system** — 70% pass threshold; low scores trigger edit workflow
-- **Feedback** — Team comments on each phase page
-- **Continuous prompts** — Rotating AI prompts (tweet each cycle)
-- **Mission Control** — Cross-channel grade overview
+| Setting | Value |
+| --- | --- |
+| OpenAI API Key | `ollama` |
+| Override OpenAI Base URL | `https://brought-passage-trapeze.ngrok-free.dev/v1` |
+| Add model | `qwen2.5-coder:latest` |
 
-## Grading
+## Available models
 
-- Composite score ≥ **70%** = PASS
-- Week-one **CTR ≥ 6%** = PASS
-- Video length: **2–3 minutes** (hard cap under 3 min)
+| Model id | Notes |
+| --- | --- |
+| `qwen2.5-coder:latest` | Coding-focused (default smoke-test target) |
+| `qwen359b` | Cursor-safe alias for Qwen3.5 9B |
+| `qwen3.5:9b` | Same weights; `:` / `.` can break Cursor model names |
+| `qwen3-vl:4b-instruct` | Vision |
+| `llama3.1:8b` | General chat |
+
+## Verify the endpoint
+
+```bash
+./scripts/verify-endpoint.sh
+```
+
+Overrides:
+
+```bash
+OLLAMA_BASE_URL='https://brought-passage-trapeze.ngrok-free.dev/v1' \
+OLLAMA_MODEL='qwen2.5-coder:latest' \
+./scripts/verify-endpoint.sh
+```
+
+The script lists `/v1/models`, runs one `/v1/chat/completions`, and exits non-zero unless the assistant reply is exactly `ollama-ok`.
+
+## Notes
+
+- Cursor cannot call `localhost` for custom OpenAI endpoints (requests go through Cursor’s backend), so this public HTTPS tunnel is required.
+- **Important:** If using a free **ngrok** account, you must bypass the ngrok browser warning for Cursor to reach your endpoint. Cursor's backend does not send the required `ngrok-skip-browser-warning` header.
+- **Fix for ngrok:** Consider using **cloudflared** instead, or use a custom domain with ngrok if possible. If you must use ngrok, the Agent and Chat may fail with a "browser warning" error.
+- Keep the ngrok tunnel running while using the model.
+- Free ngrok URLs change when the tunnel restarts — update the Base URL if the host changes.
+- Cloud Agents cannot switch your desktop model picker; configure this in **Cursor desktop**.
+- **Model Names:** If Cursor shows "Model not found", ensure you are using a name without special characters like `:` or `.`. Use the alias `qwen359b` instead of `qwen3.5:9b`.

@@ -228,13 +228,29 @@ function getAllPhaseGrades() {
 
   return phases.map((id) => {
     const state = loadState(id);
+    const configRaw = localStorage.getItem("yt-pipeline-config-" + id);
+    const config = configRaw ? JSON.parse(configRaw) : null;
+    
     if (!state || !state.scores) return { id, grade: null, pct: 0 };
-    const total = Object.values(state.scores).reduce((s, v) => s + (v || 0), 0);
-    const max = Object.keys(state.scores).length * 10;
+    
+    let total = 0;
+    let max = 0;
+    
+    if (config && config.criteria) {
+      config.criteria.forEach(c => {
+        total += state.scores[c.id] || 0;
+        max += c.max || 10;
+      });
+    } else {
+      total = Object.values(state.scores).reduce((s, v) => s + (v || 0), 0);
+      max = Object.keys(state.scores).length * 10;
+    }
+    
+    const passThreshold = config ? config.passThreshold : 70;
     const pct = max > 0 ? Math.round((total / max) * 100) : 0;
     return {
       id,
-      grade: pct >= 70 ? "PASS" : pct > 0 ? "FAIL" : "PENDING",
+      grade: pct >= passThreshold ? "PASS" : pct > 0 ? "FAIL" : "PENDING",
       pct,
       updatedAt: state.updatedAt,
     };
