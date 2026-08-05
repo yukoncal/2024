@@ -1,5 +1,11 @@
 # 2024 Project Hub
 
+> 🚀 **Quick Access**: [Open Local Dashboard](http://localhost:8080) (Ensure server is running first)
+> 
+> **To start the server**: Run `./start-dashboard.sh` or `start-dashboard.bat`
+
+---
+
 This repository contains two main projects:
 1. **Ollama to Cursor Connection**: Scripts and docs to use local models (like Qwen3.5 9B) in Cursor Desktop.
 2. **YouTube Video Production Pipeline**: A Mission Control hub for managing a three-channel video production pipeline.
