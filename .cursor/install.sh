@@ -14,6 +14,15 @@ cd "$repo_root"
 
 installed_something=0
 
+# Build the pip flags once. On distros that enforce PEP 668
+# (an EXTERNALLY-MANAGED marker in the stdlib), a plain `pip install --user`
+# is refused, so add --break-system-packages when the marker is present. This
+# keeps the bootstrap working whether or not the base image enforces PEP 668.
+pip_user_args=(--user)
+if compgen -G "/usr/lib/python3*/EXTERNALLY-MANAGED" >/dev/null 2>&1; then
+  pip_user_args+=(--break-system-packages)
+fi
+
 # Node.js
 if [ -f package.json ]; then
   installed_something=1
@@ -29,12 +38,12 @@ fi
 if [ -f requirements.txt ]; then
   installed_something=1
   echo "==> Detected requirements.txt; installing Python dependencies"
-  python3 -m pip install --user -r requirements.txt
+  python3 -m pip install "${pip_user_args[@]}" -r requirements.txt
 fi
 if [ -f pyproject.toml ]; then
   installed_something=1
   echo "==> Detected pyproject.toml; installing project"
-  python3 -m pip install --user -e .
+  python3 -m pip install "${pip_user_args[@]}" -e .
 fi
 
 # Go
