@@ -1,2 +1,91 @@
-# 2024
-year 2024  README, along with a repository license, citation file, contribution guidelines, and a code of conduct, communicates expectations for your project and helps you manage contributions.
+# 2024 Project Hub
+
+> 🚀 **Quick Access**: [Open Local Dashboard](http://localhost:8080) (Ensure server is running first)
+> 
+> **To start the server**: Run `./start-dashboard.sh` or `start-dashboard.bat`
+
+---
+
+This repository contains two main projects:
+1. **Ollama to Cursor Connection**: Scripts and docs to use local models (like Qwen3.5 9B) in Cursor Desktop.
+2. **YouTube Video Production Pipeline**: A Mission Control hub for managing a three-channel video production pipeline.
+
+---
+
+# Connect Ollama to Cursor
+
+Your Ollama OpenAI-compatible API is live at:
+
+```text
+https://brought-passage-trapeze.ngrok-free.dev/v1
+```
+
+Verified: Ollama chat completions working (`qwen2.5-coder:latest` → `ollama-ok`).
+
+## Cursor Settings → Models (Desktop)
+
+Cloud Agent tabs keep showing the hosted Cursor model (e.g. Grok). Wire Ollama in **Cursor Desktop**:
+
+1. Open **Cursor Desktop** → **Settings** → **Models**
+2. **OpenAI API Key:** `ollama` (any non-empty string)
+3. **Override OpenAI Base URL:** `https://brought-passage-trapeze.ngrok-free.dev/v1`
+4. **Add custom model:** `qwen2.5-coder:latest` (or `qwen359b`)
+5. In the chat model picker, turn **Auto** off and select that model
+6. Send: `Reply with exactly: ollama-ok`
+
+Do **not** append `/chat/completions` — Cursor adds that path itself.
+
+| Setting | Value |
+| --- | --- |
+| OpenAI API Key | `ollama` |
+| Override OpenAI Base URL | `https://brought-passage-trapeze.ngrok-free.dev/v1` |
+| Add model | `qwen2.5-coder:latest` |
+
+## YouTube Video Production Pipeline
+
+A static site hub for managing production across three channels: **Drone Technology**, **Military Bases**, and **Family**.
+
+- **Hub**: `index.html`
+- **Dashboard**: `mission-control.html`
+- **Phases**: `phases/` (9 phases with checklists and scoring)
+
+To view the pipeline hub:
+```bash
+python3 -m http.server 8080
+```
+
+## Available models
+
+| Model id | Notes |
+| --- | --- |
+| `qwen2.5-coder:latest` | Coding-focused (default smoke-test target) |
+| `qwen359b` | Cursor-safe alias for Qwen3.5 9B |
+| `qwen3.5:9b` | Same weights; `:` / `.` can break Cursor model names |
+| `qwen3-vl:4b-instruct` | Vision |
+| `llama3.1:8b` | General chat |
+
+## Verify the endpoint
+
+```bash
+./scripts/verify-endpoint.sh
+```
+
+Overrides:
+
+```bash
+OLLAMA_BASE_URL='https://brought-passage-trapeze.ngrok-free.dev/v1' \
+OLLAMA_MODEL='qwen2.5-coder:latest' \
+./scripts/verify-endpoint.sh
+```
+
+The script lists `/v1/models`, runs one `/v1/chat/completions`, and exits non-zero unless the assistant reply is exactly `ollama-ok`.
+
+## Notes
+
+- Cursor cannot call `localhost` for custom OpenAI endpoints (requests go through Cursor’s backend), so this public HTTPS tunnel is required.
+- **Important:** If using a free **ngrok** account, you must bypass the ngrok browser warning for Cursor to reach your endpoint. Cursor's backend does not send the required `ngrok-skip-browser-warning` header.
+- **Fix for ngrok:** Consider using **cloudflared** instead, or use a custom domain with ngrok if possible. If you must use ngrok, the Agent and Chat may fail with a "browser warning" error.
+- Keep the ngrok tunnel running while using the model.
+- Free ngrok URLs change when the tunnel restarts — update the Base URL if the host changes.
+- Cloud Agents cannot switch your desktop model picker; configure this in **Cursor desktop**.
+- **Model Names:** If Cursor shows "Model not found", ensure you are using a name without special characters like `:` or `.`. Use the alias `qwen359b` instead of `qwen3.5:9b`.

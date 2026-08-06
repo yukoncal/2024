@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 02 — Automation & Drafts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo"><div class="logo-icon">▶</div><div><h1>YouTube Video Production</h1><span>Section 1 · Phase 02</span></div></a>
+      <nav class="main-nav"><a href="../index.html">Hub</a><a href="../mission-control.html">Mission Control</a><a href="01-trends.html" class="active">Section 1</a></nav>
+    </div>
+  </header>
+  <main class="container">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="../index.html">Hub</a> / Section 1 / Phase 02</div>
+      <h2>Phase 02 — Automation & Drafts</h2>
+      <p class="text-muted">Initial drafts, script drafts, automated photos and screenshots captured every 3–5 seconds for B-roll assembly.</p>
+      <span id="channel-badge" class="grade-badge grade-pending" style="display:none; margin-top:0.5rem;"></span>
+    </div>
+    <div class="phase-layout">
+      <div class="phase-main">
+        <div class="panel"><h3>Objective</h3><p class="text-small text-muted">Generate first-pass script and visual asset pipeline. Automate screenshot extraction at 3–5 second intervals from source footage and web research.</p></div>
+        <div class="panel"><h3>Checklist <span id="checklist-progress" class="text-muted text-small"></span></h3><ul class="checklist" id="checklist"></ul></div>
+        <div class="panel"><h3>Automation Specs</h3><ul class="checklist">
+          <li><label>Screenshot interval: every 3–5 seconds from source video</label></li>
+          <li><label>Script target: 280–400 words (2–3 min read at 140 wpm)</label></li>
+          <li><label>Draft v1 → AI revise → Draft v2 before avatar phase</label></li>
+          <li><label>Asset folder: /drafts/[channel]/[video-id]/screenshots/</label></li>
+        </ul></div>
+        <div class="panel"><h3>Continuous AI Prompts</h3><div id="prompt-rotator" class="prompt-box"></div></div>
+      </div>
+      <aside class="phase-sidebar">
+        <div class="panel"><h3>Score System</h3><div id="score-grid" class="score-grid"></div><div id="total-score" class="total-score pending" data-pass="70"><div class="value">—</div><div class="label">PENDING</div></div><p class="text-small text-muted mt-1">Grade: <span id="grade-badge" class="grade-badge grade-pending">PENDING</span></p></div>
+        <div class="panel"><h3>Feedback & Comments</h3><div id="feedback-list" class="feedback-list"></div><form id="feedback-form" class="feedback-form"><input type="text" name="author" placeholder="Your name"><textarea name="comment" placeholder="Draft notes, script feedback..."></textarea><button type="submit" class="btn btn-primary">Post Feedback</button></form></div>
+        <div class="flex gap-1 flex-wrap"><a id="nav-prev" href="01-trends.html" class="btn">← Prev</a><a id="nav-next" href="03-avatar.html" class="btn btn-primary">Next →</a></div>
+      </aside>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="container">Phase 02 · Automation & Drafts</div></footer>
+  <script src="../js/pipeline.js"></script><script src="../js/phase-init.js"></script>
+  <script>initPhase({ id: "phase-02-automation", prev: "01-trends.html", next: "03-avatar.html",
+    checklist: ["Run AI initial script draft from Phase 01 research","Set screenshot automation (3–5 sec interval)","Capture B-roll stills from source footage","Generate photo assets from web research","Organize assets in channel/video folder","Script draft v2 — AI revision pass","Verify word count fits 2–3 min target","Tag each screenshot with timestamp + description","Human editor reviews draft v2"],
+    criteria: [{id:"script",label:"Script Quality",max:10},{id:"screenshots",label:"Screenshot Coverage",max:10},{id:"automation",label:"Automation Run",max:10},{id:"organization",label:"Asset Organization",max:10},{id:"timing",label:"Length Fit (2-3 min)",max:10}],
+    prompts: ["PROMPT: Write a 350-word YouTube script for [TOPIC]. Hook in first 3 sec. Sentinel 1 tone. Under 3 min at 140 wpm. Include [B-ROLL] tags every 15 sec.","PROMPT: Extract screenshot descriptions every 4 seconds for a 2:30 video about [TOPIC]. Output timestamp | visual description.","TWEET: Draft v2 ready — [VIDEO TITLE]. 3-5 sec B-roll cadence locked. #YouTubePipeline #Automation"]
+  });</script>
+</body>
+</html>

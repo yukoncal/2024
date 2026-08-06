@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 06 — Mission Control Submit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo"><div class="logo-icon">▶</div><div><h1>YouTube Video Production</h1><span>Section 1 · Phase 06</span></div></a>
+      <nav class="main-nav"><a href="../index.html">Hub</a><a href="../mission-control.html">Mission Control</a><a href="01-trends.html" class="active">Section 1</a></nav>
+    </div>
+  </header>
+  <main class="container">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="../index.html">Hub</a> / <a href="../mission-control.html">Mission Control</a> / Phase 06</div>
+      <h2>Phase 06 — Mission Control Submission</h2>
+      <p class="text-muted">Submit final short video (2–3 minutes, under 3 min hard cap) to Mission Control for team approval and publish queue.</p>
+      <span id="channel-badge" class="grade-badge grade-pending" style="display:none; margin-top:0.5rem;"></span>
+    </div>
+    <div class="alert alert-success">Ready for Mission Control when Phase 05 human sign-off is complete.</div>
+    <div class="phase-layout">
+      <div class="phase-main">
+        <div class="panel"><h3>Objective</h3><p class="text-small text-muted">Package and submit video to Mission Control dashboard. Include title, description, tags, thumbnail, and pipeline grade summary.</p></div>
+        <div class="panel"><h3>Checklist <span id="checklist-progress" class="text-muted text-small"></span></h3><ul class="checklist" id="checklist"></ul></div>
+        <div class="panel"><h3>Submission Package</h3>
+          <div class="score-grid">
+            <div class="score-item"><label>Video Title</label><input type="text" placeholder="Enter title"></div>
+            <div class="score-item"><label>Runtime (mm:ss)</label><input type="text" placeholder="2:45"></div>
+            <div class="score-item"><label>Channel</label><select><option>Drone Technology</option><option>Military Bases</option><option>Family</option></select></div>
+            <div class="score-item"><label>YouTube URL (post-publish)</label><input type="text" placeholder="https://youtube.com/..."></div>
+          </div>
+        </div>
+        <div class="panel"><h3>Continuous AI Prompts</h3><div id="prompt-rotator" class="prompt-box"></div></div>
+      </div>
+      <aside class="phase-sidebar">
+        <div class="panel"><h3>Score System</h3><div id="score-grid" class="score-grid"></div><div id="total-score" class="total-score pending" data-pass="70"><div class="value">—</div><div class="label">PENDING</div></div><p class="text-small text-muted mt-1">Grade: <span id="grade-badge" class="grade-badge grade-pending">PENDING</span></p></div>
+        <div class="panel"><h3>Feedback & Comments</h3><div id="feedback-list" class="feedback-list"></div><form id="feedback-form" class="feedback-form"><input type="text" name="author" placeholder="Your name"><textarea name="comment" placeholder="Submission notes, Mission Control feedback..."></textarea><button type="submit" class="btn btn-primary">Post Feedback</button></form></div>
+        <div class="flex gap-1 flex-wrap"><a id="nav-prev" href="05-ai-review.html" class="btn">← Prev</a><a href="../mission-control.html" class="btn">Mission Control</a><a id="nav-next" href="07-analytics.html" class="btn btn-primary">Next →</a></div>
+      </aside>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="container">Phase 06 · Submitted to Mission Control</div></footer>
+  <script src="../js/pipeline.js"></script><script src="../js/phase-init.js"></script>
+  <script>initPhase({ id: "phase-06-mission-control", prev: "05-ai-review.html", next: "07-analytics.html",
+    checklist: ["Export final video MP4 (1080p)","Confirm runtime under 3:00","Upload thumbnail (1280x720)","Write SEO title and description","Add tags and category","Attach pipeline grade summary","Submit to Mission Control queue","Mission Control lead reviews","Approved → schedule publish OR reject → edit queue"],
+    criteria: [{id:"package",label:"Submission Package",max:10},{id:"metadata",label:"Title/Description/Tags",max:10},{id:"thumbnail",label:"Thumbnail Ready",max:10},{id:"approval",label:"Mission Control Approval",max:10},{id:"schedule",label:"Publish Scheduled",max:10}],
+    prompts: ["PROMPT: Generate YouTube title (60 char), description (500 word), and 15 tags for [VIDEO TOPIC]. Optimize for CTR.","PROMPT: Mission Control submission checklist — verify all items for [VIDEO ID]. Output pass/fail per item.","TWEET: SUBMITTED to Mission Control — [VIDEO TITLE]. 2:XX runtime. Awaiting approval. #MissionControl #YouTubePipeline"]
+  });</script>
+</body>
+</html>

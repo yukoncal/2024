@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 09 — Pipeline Tracking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="../index.html" class="logo"><div class="logo-icon">▶</div><div><h1>YouTube Video Production</h1><span>Section 1 · Phase 09</span></div></a>
+      <nav class="main-nav"><a href="../index.html">Hub</a><a href="../mission-control.html">Mission Control</a><a href="01-trends.html" class="active">Section 1</a></nav>
+    </div>
+  </header>
+  <main class="container">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="../index.html">Hub</a> / Section 1 / Phase 09</div>
+      <h2>Phase 09 — Pipeline Tracking & Engagement</h2>
+      <p class="text-muted">Ongoing goals: more views, reply to comments, continuous AI prompts (tweet each cycle). Full pipeline tracking for the team.</p>
+      <span id="channel-badge" class="grade-badge grade-pending" style="display:none; margin-top:0.5rem;"></span>
+    </div>
+    <div class="phase-layout">
+      <div class="phase-main">
+        <div class="panel"><h3>Objective</h3><p class="text-small text-muted">Long-term tracking after week-one pass. Drive views, engage comments, rotate and tweet AI prompts for next video cycle.</p></div>
+        <div class="panel"><h3>Checklist <span id="checklist-progress" class="text-muted text-small"></span></h3><ul class="checklist" id="checklist"></ul></div>
+        <div class="panel"><h3>Engagement Goals</h3><ul class="checklist">
+          <li><label>Reply to every comment within 24 hours</label></li>
+          <li><label>Pin best comment or community question</label></li>
+          <li><label>Share video link on social (tweet prompt cycle)</label></li>
+          <li><label>Log view milestones: 1K, 10K, 50K</label></li>
+          <li><label>Feed performance data into next Phase 01 research</label></li>
+        </ul></div>
+        <div class="panel"><h3>Continuous Prompts — Tweet Each Cycle</h3><div id="prompt-rotator" class="prompt-box"></div>
+          <p class="text-small text-muted mt-1">Keep prompts running continuously. Tweet each new prompt to keep the team and audience in the loop.</p>
+        </div>
+        <div class="panel">
+          <h3>Start Next Video</h3>
+          <p class="text-small text-muted mb-2">Pipeline complete for this video. Launch next cycle at Phase 01.</p>
+          <a href="01-trends.html" class="btn btn-primary">→ Phase 01 Trends & Research</a>
+        </div>
+      </div>
+      <aside class="phase-sidebar">
+        <div class="panel"><h3>Score System</h3><div id="score-grid" class="score-grid"></div><div id="total-score" class="total-score pending" data-pass="70"><div class="value">—</div><div class="label">PENDING</div></div><p class="text-small text-muted mt-1">Grade: <span id="grade-badge" class="grade-badge grade-pending">PENDING</span></p></div>
+        <div class="panel"><h3>Feedback & Comments</h3><div id="feedback-list" class="feedback-list"></div><form id="feedback-form" class="feedback-form"><input type="text" name="author" placeholder="Your name"><textarea name="comment" placeholder="Tracking notes, engagement log..."></textarea><button type="submit" class="btn btn-primary">Post Feedback</button></form></div>
+        <div class="flex gap-1 flex-wrap"><a id="nav-prev" href="08-week-one.html" class="btn">← Prev</a><a href="../mission-control.html" class="btn btn-primary">Mission Control</a></div>
+      </aside>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="container">Phase 09 · Pipeline Tracking · Continuous Prompt Cycle</div></footer>
+  <script src="../js/pipeline.js"></script><script src="../js/phase-init.js"></script>
+  <script>initPhase({ id: "phase-09-tracking", prev: "08-week-one.html",
+    checklist: ["Log video in pipeline tracking sheet","Set view milestone alerts","Reply to all new comments (24h SLA)","Tweet current AI prompt for next video","Share performance update with team","Document lessons for Phase 01 research","Schedule next video pipeline start","Update Mission Control dashboard","Archive completed video dossier"],
+    criteria: [{id:"comments",label:"Comment Replies",max:10},{id:"views",label:"View Growth Tracking",max:10},{id:"prompts",label:"Prompt Cycle Active",max:10},{id:"team",label:"Team Visibility",max:10},{id:"next",label:"Next Pipeline Queued",max:10}],
+    prompts: ["PROMPT: Summarize [VIDEO] performance week 1-4. What worked? Feed 5 insights into next video research.","PROMPT: Draft reply templates for top 10 comment types on [CHANNEL] videos. Friendly, on-brand, under 50 words.","TWEET: Pipeline tracking — [VIDEO] hit [X] views. Next video research starting. Prompt: [CURRENT PROMPT] #YouTubePipeline","TWEET: Team — grades posted on Mission Control. CTR pass = 6%. Reply to comments within 24h. #ContentOps"]
+  });</script>
+</body>
+</html>
