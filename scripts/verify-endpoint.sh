@@ -4,7 +4,7 @@
 set -euo pipefail
 
 BASE_URL="${OLLAMA_BASE_URL:-https://brought-passage-trapeze.ngrok-free.dev/v1}"
-MODEL="${OLLAMA_MODEL:-qwen2.5-coder:latest}"
+MODEL="${OLLAMA_MODEL:-ollama}"
 EXPECT="${OLLAMA_EXPECT:-ollama-ok}"
 
 if ! command -v curl >/dev/null 2>&1; then

@@ -1,9 +1,9 @@
-# Pull Qwen3.5 9B into Ollama and create a Cursor-safe alias.
-# Run in PowerShell:  .\scripts\setup-qwen.ps1
+# Pull Qwen2.5 7B into Ollama and create a Cursor-safe alias.
+# Run in PowerShell:  .\scripts\setup-ollama.ps1
 $ErrorActionPreference = "Stop"
 
-$ModelSource = if ($env:MODEL_SOURCE) { $env:MODEL_SOURCE } else { "qwen3.5:9b" }
-$ModelAlias  = if ($env:MODEL_ALIAS)  { $env:MODEL_ALIAS }  else { "qwen359b" }
+$ModelSource = if ($env:MODEL_SOURCE) { $env:MODEL_SOURCE } else { "qwen2.5:7b" }
+$ModelAlias  = if ($env:MODEL_ALIAS)  { $env:MODEL_ALIAS }  else { "ollama" }
 $Root        = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $Modelfile   = Join-Path $Root "ollama\Modelfile"
 
@@ -12,7 +12,7 @@ if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
 Ollama is not installed.
 
 Install it from: https://ollama.com/download
-Then re-run: .\scripts\setup-qwen.ps1
+Then re-run: .\scripts\setup-ollama.ps1
 "@
     exit 1
 }
@@ -68,5 +68,5 @@ Next steps for Cursor:
   3. Pick $ModelAlias in the chat model picker (turn Auto off)
 
 Local sanity check:
-  .\scripts\verify-qwen.ps1
+  .\scripts\verify-ollama.ps1
 "@

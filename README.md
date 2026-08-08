@@ -7,7 +7,7 @@
 ---
 
 This repository contains two main projects:
-1. **Ollama to Cursor Connection**: Scripts and docs to use local models (like Qwen3.5 9B) in Cursor Desktop.
+1. **Ollama to Cursor Connection**: Scripts and docs to use local models (like Qwen2.5 7B) in Cursor Desktop.
 2. **YouTube Video Production Pipeline**: A Mission Control hub for managing a three-channel video production pipeline.
 
 ---
@@ -20,7 +20,7 @@ Your Ollama OpenAI-compatible API is live at:
 https://brought-passage-trapeze.ngrok-free.dev/v1
 ```
 
-Verified: Ollama chat completions working (`qwen2.5-coder:latest` → `ollama-ok`).
+Verified: Ollama chat completions working (`ollama` → `ollama-ok`).
 
 ## Cursor Settings → Models (Desktop)
 
@@ -29,7 +29,7 @@ Cloud Agent tabs keep showing the hosted Cursor model (e.g. Grok). Wire Ollama i
 1. Open **Cursor Desktop** → **Settings** → **Models**
 2. **OpenAI API Key:** `ollama` (any non-empty string)
 3. **Override OpenAI Base URL:** `https://brought-passage-trapeze.ngrok-free.dev/v1`
-4. **Add custom model:** `qwen2.5-coder:latest` (or `qwen359b`)
+4. **Add custom model:** `ollama` (or `qwen2.5-coder:latest`)
 5. In the chat model picker, turn **Auto** off and select that model
 6. Send: `Reply with exactly: ollama-ok`
 
@@ -39,7 +39,7 @@ Do **not** append `/chat/completions` — Cursor adds that path itself.
 | --- | --- |
 | OpenAI API Key | `ollama` |
 | Override OpenAI Base URL | `https://brought-passage-trapeze.ngrok-free.dev/v1` |
-| Add model | `qwen2.5-coder:latest` |
+| Add model | `ollama` |
 
 ## YouTube Video Production Pipeline
 
@@ -58,9 +58,9 @@ python3 -m http.server 8080
 
 | Model id | Notes |
 | --- | --- |
-| `qwen2.5-coder:latest` | Coding-focused (default smoke-test target) |
-| `qwen359b` | Cursor-safe alias for Qwen3.5 9B |
-| `qwen3.5:9b` | Same weights; `:` / `.` can break Cursor model names |
+| `ollama` | Cursor-safe alias for Qwen2.5 7B (default) |
+| `qwen2.5-coder:latest` | Coding-focused |
+| `qwen3.5:9b` | Legacy mention; use `ollama` alias |
 | `qwen3-vl:4b-instruct` | Vision |
 | `llama3.1:8b` | General chat |
 
@@ -74,7 +74,7 @@ Overrides:
 
 ```bash
 OLLAMA_BASE_URL='https://brought-passage-trapeze.ngrok-free.dev/v1' \
-OLLAMA_MODEL='qwen2.5-coder:latest' \
+OLLAMA_MODEL='ollama' \
 ./scripts/verify-endpoint.sh
 ```
 
@@ -88,4 +88,4 @@ The script lists `/v1/models`, runs one `/v1/chat/completions`, and exits non-ze
 - Keep the ngrok tunnel running while using the model.
 - Free ngrok URLs change when the tunnel restarts — update the Base URL if the host changes.
 - Cloud Agents cannot switch your desktop model picker; configure this in **Cursor desktop**.
-- **Model Names:** If Cursor shows "Model not found", ensure you are using a name without special characters like `:` or `.`. Use the alias `qwen359b` instead of `qwen3.5:9b`.
+- **Model Names:** If Cursor shows "Model not found", ensure you are using a name without special characters like `:` or `.`. Use the alias `ollama` instead of `qwen2.5-coder:latest`.

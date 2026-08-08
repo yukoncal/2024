@@ -1,9 +1,9 @@
 # Verify the OpenAI-compatible Ollama endpoint for the Cursor alias.
-# Run in PowerShell:  .\scripts\verify-qwen.ps1
+# Run in PowerShell:  .\scripts\verify-ollama.ps1
 $ErrorActionPreference = "Stop"
 
 $BaseUrl    = if ($env:BASE_URL)    { $env:BASE_URL }    else { "http://127.0.0.1:11434/v1" }
-$ModelAlias = if ($env:MODEL_ALIAS) { $env:MODEL_ALIAS } else { "qwen359b" }
+$ModelAlias = if ($env:MODEL_ALIAS) { $env:MODEL_ALIAS } else { "ollama" }
 
 Write-Host "Listing models at $BaseUrl/models ..."
 $models = Invoke-RestMethod -Uri "$BaseUrl/models" -Headers @{ Authorization = "Bearer ollama" }

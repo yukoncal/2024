@@ -8,7 +8,7 @@ TARGET="http://127.0.0.1:${PORT}"
 
 if ! curl -fsS "${TARGET}/api/tags" >/dev/null 2>&1; then
   echo "Ollama is not reachable at ${TARGET}" >&2
-  echo "Run ./scripts/setup-qwen.sh first (or: ollama serve)." >&2
+  echo "Run ./scripts/setup-ollama.sh first (or: ollama serve)." >&2
   exit 1
 fi
 
@@ -50,6 +50,6 @@ Install one of:
 After the tunnel is up, in Cursor Settings → Models:
   OpenAI API Key:            ollama
   Override OpenAI Base URL:  https://YOUR-TUNNEL-HOST/v1
-  Add custom model:          qwen359b
+  Add custom model:          ollama
 EOF
 exit 1

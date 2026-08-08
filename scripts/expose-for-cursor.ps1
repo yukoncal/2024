@@ -9,7 +9,7 @@ $Target = "http://127.0.0.1:$Port"
 try {
     Invoke-RestMethod -Uri "$Target/api/tags" -TimeoutSec 2 | Out-Null
 } catch {
-    Write-Error "Ollama is not reachable at $Target. Run .\scripts\setup-qwen.ps1 first."
+    Write-Error "Ollama is not reachable at $Target. Run .\scripts\setup-ollama.ps1 first."
     exit 1
 }
 
@@ -54,6 +54,6 @@ Install one of:
 After the tunnel is up, in Cursor Settings → Models:
   OpenAI API Key:            ollama
   Override OpenAI Base URL:  https://YOUR-TUNNEL-HOST/v1
-  Add custom model:          qwen359b
+  Add custom model:          ollama
 "@
 exit 1
