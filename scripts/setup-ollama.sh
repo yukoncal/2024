@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Pull Qwen3.5 9B into Ollama and create a Cursor-safe alias.
+# Pull Llama 3.1 8B into Ollama and create a Cursor-safe alias.
 set -euo pipefail
 
-MODEL_SOURCE="${MODEL_SOURCE:-qwen3.5:9b}"
-MODEL_ALIAS="${MODEL_ALIAS:-qwen359b}"
+MODEL_SOURCE="${MODEL_SOURCE:-llama3.1:8b}"
+MODEL_ALIAS="${MODEL_ALIAS:-llama318b}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODELFILE="${ROOT}/ollama/Modelfile"
 
@@ -69,5 +69,5 @@ Next steps for Cursor:
   3. Pick ${MODEL_ALIAS} in the chat model picker (turn Auto off)
 
 Local sanity check:
-  ./scripts/verify-qwen.sh
+  ./scripts/verify-ollama.sh
 EOF

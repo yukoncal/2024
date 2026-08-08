@@ -1,6 +1,6 @@
 # Cursor-friendly alias for Qwen3.5 9B.
 # Cursor can reject model names that contain ":" or "." — this alias avoids that.
-FROM qwen3.5:9b
+FROM llama3.1:8b
 
 # Reasonable coding defaults; raise num_ctx if you have VRAM/RAM headroom.
 PARAMETER temperature 0.6
