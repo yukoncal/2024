@@ -1,9 +1,30 @@
 #!/usr/bin/env bash
-# Smoke-test the public Ollama OpenAI-compatible endpoint for Cursor.
+# Smoke-test an Ollama OpenAI-compatible /v1 endpoint for Cursor.
 # Lists models, runs one chat completion, exits non-zero on failure.
 set -euo pipefail
 
-BASE_URL="${OLLAMA_BASE_URL:-https://brought-passage-trapeze.ngrok-free.dev/v1}"
+# Prefer a live local daemon; fall back to OLLAMA_BASE_URL if set.
+# Do not ship a hardcoded ngrok host — free tunnels die when restarted.
+if [[ -n "${OLLAMA_BASE_URL:-}" ]]; then
+  BASE_URL="${OLLAMA_BASE_URL}"
+elif curl -fsS "http://127.0.0.1:11434/api/tags" >/dev/null 2>&1; then
+  BASE_URL="http://127.0.0.1:11434/v1"
+else
+  cat <<'EOF' >&2
+error: no Ollama endpoint configured.
+
+Start local Ollama:
+  ollama serve
+
+Or point at a public HTTPS tunnel (required for Cursor Desktop):
+  OLLAMA_BASE_URL='https://YOUR-TUNNEL-HOST/v1' ./scripts/verify-endpoint.sh
+
+Create a tunnel with:
+  ./scripts/expose-for-cursor.sh
+EOF
+  exit 1
+fi
+
 MODEL="${OLLAMA_MODEL:-qwen2.5-coder:latest}"
 EXPECT="${OLLAMA_EXPECT:-ollama-ok}"
 
@@ -16,16 +37,26 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ "$BASE_URL" == *"ngrok-free"* ]]; then
+if [[ "$BASE_URL" == *"ngrok"* ]]; then
   echo "note: ngrok endpoint detected. if this script passes but Cursor fails,"
   echo "      it is likely because Cursor does not send the 'ngrok-skip-browser-warning' header."
+  echo "      Prefer ./scripts/expose-for-cursor.sh with cloudflared."
 fi
 
 echo "==> GET ${BASE_URL}/models"
+set +e
 models_json=$(curl -sS --fail \
   -H "ngrok-skip-browser-warning: true" \
   -H "Authorization: Bearer ollama" \
-  "${BASE_URL}/models")
+  "${BASE_URL}/models" 2>/tmp/verify-endpoint.err)
+curl_status=$?
+set -e
+if [[ $curl_status -ne 0 ]]; then
+  echo "error: GET ${BASE_URL}/models failed" >&2
+  cat /tmp/verify-endpoint.err >&2 || true
+  echo "hint: free ngrok/cloudflare URLs change when the tunnel restarts — refresh OLLAMA_BASE_URL" >&2
+  exit 1
+fi
 
 MODELS_JSON="$models_json" python3 -c '
 import json, os, sys
