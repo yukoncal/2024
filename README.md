@@ -58,6 +58,8 @@ python3 -m http.server 8080
 
 | Model id | Notes |
 | --- | --- |
+| `qwen2.5-coder:7b` | Coding-focused (7B) |
+| `qwen25-7b-coder` | Cursor-safe alias for Qwen2.5-Coder 7B |
 | `qwen2.5-coder:latest` | Coding-focused (default smoke-test target) |
 | `qwen359b` | Cursor-safe alias for Qwen3.5 9B |
 | `qwen3.5:9b` | Same weights; `:` / `.` can break Cursor model names |
