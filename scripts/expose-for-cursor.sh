@@ -50,6 +50,7 @@ Install one of:
 After the tunnel is up, in Cursor Settings → Models:
   OpenAI API Key:            ollama
   Override OpenAI Base URL:  https://YOUR-TUNNEL-HOST/v1
-  Add custom model:          qwen359b
+  Add custom model:          qwen25-7b-coder
+  (Do not use qwen2.5-coder:latest — Cursor rejects ":" / ".")
 EOF
 exit 1

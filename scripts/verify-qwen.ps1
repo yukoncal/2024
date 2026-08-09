@@ -3,7 +3,7 @@
 $ErrorActionPreference = "Stop"
 
 $BaseUrl    = if ($env:BASE_URL)    { $env:BASE_URL }    else { "http://127.0.0.1:11434/v1" }
-$ModelAlias = if ($env:MODEL_ALIAS) { $env:MODEL_ALIAS } else { "qwen359b" }
+$ModelAlias = if ($env:MODEL_ALIAS) { $env:MODEL_ALIAS } else { "qwen25-7b-coder" }
 
 Write-Host "Listing models at $BaseUrl/models ..."
 $models = Invoke-RestMethod -Uri "$BaseUrl/models" -Headers @{ Authorization = "Bearer ollama" }

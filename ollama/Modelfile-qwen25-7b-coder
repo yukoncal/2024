@@ -1,0 +1,10 @@
+# Cursor-friendly alias for Qwen2.5-Coder 7B.
+# Cursor rejects model names that contain ":" or "." — this alias avoids that.
+# Symptom if you use qwen2.5-coder:latest: "The model you chose is not available."
+FROM qwen2.5-coder:7b
+
+# Reasonable coding defaults; raise num_ctx if you have VRAM/RAM headroom.
+PARAMETER temperature 0.6
+PARAMETER top_p 0.95
+PARAMETER num_ctx 8192
+PARAMETER num_predict 4096
