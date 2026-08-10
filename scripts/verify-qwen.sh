@@ -3,7 +3,7 @@
 set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:11434/v1}"
-MODEL_ALIAS="${MODEL_ALIAS:-qwen25-7b-coder}"
+MODEL_ALIAS="${MODEL_ALIAS:-qwen25}"
 
 echo "Listing models at ${BASE_URL}/models ..."
 curl -fsS "${BASE_URL}/models" | sed 's/},{/},\n{/g'

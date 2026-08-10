@@ -5,10 +5,12 @@
 $ErrorActionPreference = "Stop"
 
 $ModelSource = if ($env:MODEL_SOURCE) { $env:MODEL_SOURCE } else { "qwen2.5-coder:7b" }
-$ModelAlias  = if ($env:MODEL_ALIAS)  { $env:MODEL_ALIAS }  else { "qwen25-7b-coder" }
+$ModelAlias  = if ($env:MODEL_ALIAS)  { $env:MODEL_ALIAS }  else { "qwen25" }
 $Root        = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 
-if ($ModelSource -eq "qwen2.5-coder:7b" -and (Test-Path (Join-Path $Root "ollama\Modelfile-qwen25-7b-coder"))) {
+if ($ModelSource -eq "qwen2.5-coder:7b" -and (Test-Path (Join-Path $Root "ollama\Modelfile-qwen25"))) {
+    $Modelfile = Join-Path $Root "ollama\Modelfile-qwen25"
+} elseif ($ModelSource -eq "qwen2.5-coder:7b" -and (Test-Path (Join-Path $Root "ollama\Modelfile-qwen25-7b-coder"))) {
     $Modelfile = Join-Path $Root "ollama\Modelfile-qwen25-7b-coder"
 } else {
     $Modelfile = Join-Path $Root "ollama\Modelfile"

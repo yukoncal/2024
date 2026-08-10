@@ -5,11 +5,13 @@
 set -euo pipefail
 
 MODEL_SOURCE="${MODEL_SOURCE:-qwen2.5-coder:7b}"
-MODEL_ALIAS="${MODEL_ALIAS:-qwen25-7b-coder}"
+MODEL_ALIAS="${MODEL_ALIAS:-qwen25}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Prefer the dedicated Modelfile when using the default coder model.
-if [[ "${MODEL_SOURCE}" == "qwen2.5-coder:7b" && -f "${ROOT}/ollama/Modelfile-qwen25-7b-coder" ]]; then
+if [[ "${MODEL_SOURCE}" == "qwen2.5-coder:7b" && -f "${ROOT}/ollama/Modelfile-qwen25" ]]; then
+  MODELFILE="${ROOT}/ollama/Modelfile-qwen25"
+elif [[ "${MODEL_SOURCE}" == "qwen2.5-coder:7b" && -f "${ROOT}/ollama/Modelfile-qwen25-7b-coder" ]]; then
   MODELFILE="${ROOT}/ollama/Modelfile-qwen25-7b-coder"
 else
   MODELFILE="${ROOT}/ollama/Modelfile"

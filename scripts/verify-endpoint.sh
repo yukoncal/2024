@@ -4,7 +4,7 @@
 set -euo pipefail
 
 BASE_URL="${OLLAMA_BASE_URL:-}"
-MODEL="${OLLAMA_MODEL:-qwen25-7b-coder}"
+MODEL="${OLLAMA_MODEL:-qwen25}"
 EXPECT="${OLLAMA_EXPECT:-ollama-ok}"
 
 if [[ -z "$BASE_URL" ]]; then
