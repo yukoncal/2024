@@ -160,11 +160,11 @@ Env:    ${ENV_FILE}  (HERMES_API_TIMEOUT for slow CPU models)
 
 Next:
   1. Keep Ollama running:  ollama serve
-  2. Install Hermes Agent if needed:
-       curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
-       # or:  ollama launch hermes
-  3. Restart Hermes / run: hermes
-  4. Confirm model ${MODEL} (provider custom, not ollama-cloud)
+  2. Chat:  hermes
+  3. Confirm model ${MODEL} (provider custom, not ollama-cloud)
+
+If hermes CLI is missing:
+  ./scripts/install-hermes-cli.sh
 
 Overrides (must stay on the locked free model unless you unlock):
   OLLAMA_CONTEXT_LENGTH=32768 ./scripts/hermes-use-ollama.sh
