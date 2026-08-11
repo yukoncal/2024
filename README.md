@@ -25,11 +25,12 @@ Lock file: [`config/hermes.lock.json`](config/hermes.lock.json)
 | --- | --- | --- |
 | **Grok 4.5 Fast** (includes High Fast) | **$4 / M tokens** | **$18 / M tokens** |
 | Grok 4.5 (base) | $2 / M tokens | $6 / M tokens |
+| **Cheapest Cloud** (Haiku / Mini) | **~$0.15 / M** | **~$0.60 / M** |
 
 Source: [Cursor Grok 4.5 docs](https://cursor.com/docs/models/grok-4-5).  
-“High” effort does **not** change the per-token rate — it uses **more tokens** per task. Fast is the expensive rate tier.
+“High” effort does not change the per-token rate — it uses **more tokens** per task. Fast is the expensive rate tier.
 
-**Locked Hermes cost: $0** (runs on your machine via Ollama).
+**Locked Hermes cost: $0** (runs on your machine via Ollama). This is the absolute cheapest.
 
 ## One command: lock free Hermes
 

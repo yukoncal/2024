@@ -28,6 +28,8 @@
     "note": "Local Ollama via Custom Endpoint \u2014 never provider ollama-cloud for free local use."
   },
   "cloud_agents": {
-    "warning": "Cloud Agents cannot use local Ollama. Do not start Cloud Agents on Grok 4.5 High Fast for Hermes work \u2014 use Cursor Desktop or Hermes Agent with the locked hermes model (free), or pick a cheaper cloud model only if you must use Cloud Agents."
+    "warning": "Cloud Agents cannot use local Ollama. Do not start Cloud Agents on Grok 4.5 High Fast for Hermes work — use Cursor Desktop or Hermes Agent with the locked hermes model (free).",
+    "cheapest_cloud_fallback": "claude-3-haiku",
+    "cheapest_cloud_notes": "Claude 3 Haiku or GPT-4o-mini are ~50-100x cheaper than Grok 4.5 High Fast."
   }
 }

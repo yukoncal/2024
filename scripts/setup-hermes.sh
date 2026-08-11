@@ -11,7 +11,8 @@ MODEL_ALIAS="$(hermes_lock_read_model)"
 PREFERRED_SOURCE="${MODEL_SOURCE:-}"
 MODELFILE="${ROOT}/ollama/Modelfile.hermes"
 # Free models we will reuse if already downloaded (first match wins when MODEL_SOURCE unset).
-CANDIDATES=(openhermes openhermes:latest llama3.1:8b mistral phi3)
+# 'phi3' is the cheapest (smallest/fastest) local option.
+CANDIDATES=(openhermes openhermes:latest llama3.1:8b mistral phi3 phi3:mini)
 
 if ! command -v ollama >/dev/null 2>&1; then
   cat <<'EOF'

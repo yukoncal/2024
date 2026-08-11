@@ -378,6 +378,9 @@ echo
 echo "Cursor Desktop pin"
 ok "lock says: Auto OFF, model '${LOCKED_MODEL}', key 'ollama'"
 warn "Cloud Agents cannot use local Hermes — pin '${LOCKED_MODEL}' in Cursor Desktop"
+echo "         If you MUST use Cloud Agents, pick the cheapest cloud fallback:"
+echo "         - claude-3-haiku  (approx 100x cheaper than Grok 4.5 Fast)"
+echo "         - gpt-4o-mini"
 echo
 
 # --- Summary ---
