@@ -182,11 +182,48 @@ Write-Host ""
 Write-Host "Hermes Agent"
 $hermesHome = if ($env:HERMES_HOME) { $env:HERMES_HOME } else { Join-Path $HOME ".hermes" }
 $hermesCfg = Join-Path $hermesHome "config.yaml"
-if (Get-Command hermes -ErrorAction SilentlyContinue) {
-    Ok "hermes CLI found"
+$localBin = Join-Path $HOME ".local\bin"
+if (Test-Path $localBin) {
+    $env:Path = "$localBin;$env:Path"
+}
+
+function Resolve-HermesCli {
+    $cmd = Get-Command hermes -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    foreach ($cand in @(
+        (Join-Path $HOME ".local\bin\hermes"),
+        (Join-Path $HOME ".local\bin\hermes.exe"),
+        "C:\Program Files\Hermes\hermes.exe"
+    )) {
+        if (Test-Path $cand) { return $cand }
+    }
+    return $null
+}
+
+$hermesBin = Resolve-HermesCli
+if ($hermesBin) {
+    Ok "hermes CLI found ($hermesBin)"
+} elseif ($Fix) {
+    FixNote "installing Hermes Agent CLI (non-interactive)"
+    try {
+        $installer = Join-Path $env:TEMP "hermes-install.sh"
+        Invoke-WebRequest -Uri "https://hermes-agent.nousresearch.com/install.sh" -OutFile $installer
+        if (Get-Command bash -ErrorAction SilentlyContinue) {
+            & bash $installer --skip-setup --non-interactive --skip-browser
+        } else {
+            Write-Host "         On Windows, install via: https://hermes-agent.nousresearch.com/  or  ollama launch hermes"
+        }
+        $env:Path = "$(Join-Path $HOME '.local\bin');$env:Path"
+        $hermesBin = Resolve-HermesCli
+        if ($hermesBin) { Ok "hermes CLI installed ($hermesBin)" }
+        else { FailMsg "hermes CLI install did not produce a hermes binary" }
+    } catch {
+        FailMsg "hermes CLI install failed: $_"
+    }
 } else {
-    WarnMsg "hermes CLI not installed (optional — Hermes Agent / Desktop)"
-    Write-Host "         Install: https://hermes-agent.nousresearch.com/  or  ollama launch hermes"
+    WarnMsg "hermes CLI not installed"
+    Write-Host "         Fix: .\scripts\hermes-doctor.ps1 -Fix"
+    Write-Host "         Or:  https://hermes-agent.nousresearch.com/  /  ollama launch hermes"
 }
 
 if (Test-Path $hermesCfg) {

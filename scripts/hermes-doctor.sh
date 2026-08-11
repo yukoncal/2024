@@ -271,12 +271,48 @@ echo
 echo "Hermes Agent"
 HERMES_HOME="${HERMES_HOME:-${HOME}/.hermes}"
 HERMES_CFG="${HERMES_HOME}/config.yaml"
-if command -v hermes >/dev/null 2>&1; then
-  ok "hermes CLI found ($(command -v hermes))"
+# Installer puts the launcher in ~/.local/bin — include it even if shell PATH is stale.
+export PATH="${HOME}/.local/bin:${PATH}"
+
+resolve_hermes_cli() {
+  if command -v hermes >/dev/null 2>&1; then
+    command -v hermes
+    return 0
+  fi
+  local cand
+  for cand in "${HOME}/.local/bin/hermes" /usr/local/bin/hermes; do
+    if [[ -x "$cand" ]]; then
+      echo "$cand"
+      return 0
+    fi
+  done
+  return 1
+}
+
+install_hermes_cli() {
+  fixn "installing Hermes Agent CLI (non-interactive)"
+  curl -fsSL https://hermes-agent.nousresearch.com/install.sh \
+    | bash -s -- --skip-setup --non-interactive --skip-browser \
+    >/tmp/hermes-doctor-install.log 2>&1
+  export PATH="${HOME}/.local/bin:${PATH}"
+}
+
+HERMES_BIN=""
+if HERMES_BIN="$(resolve_hermes_cli)"; then
+  ok "hermes CLI found (${HERMES_BIN})"
 else
-  warn "hermes CLI not installed (optional — Hermes Agent / Desktop)"
-  echo "         Install: curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash"
-  echo "         Or:      ollama launch hermes"
+  if [[ "$FIX" -eq 1 ]]; then
+    if install_hermes_cli && HERMES_BIN="$(resolve_hermes_cli)"; then
+      ok "hermes CLI installed (${HERMES_BIN})"
+    else
+      fail "hermes CLI install failed — see /tmp/hermes-doctor-install.log"
+      echo "         Manual: curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-setup --non-interactive"
+    fi
+  else
+    warn "hermes CLI not installed"
+    echo "         Fix: ./scripts/hermes-doctor.sh --fix"
+    echo "         Or:  curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-setup --non-interactive"
+  fi
 fi
 
 if [[ -f "${HERMES_CFG}" ]]; then

@@ -66,10 +66,12 @@ hermes                            # or: ollama launch hermes
 | `model.base_url` | `http://127.0.0.1:11434/v1` |
 | `model.default` | `hermes` |
 
-Install Hermes Agent if needed:
+Install Hermes Agent CLI if needed:
 
 ```bash
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+./scripts/install-hermes-cli.sh
+# or:  ./scripts/hermes-doctor.sh --fix
+# or:  curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-setup --non-interactive
 # or guided: ollama launch hermes
 ```
 
