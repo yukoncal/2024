@@ -1,0 +1,35 @@
+{
+  "locked": true,
+  "model": "hermes",
+  "source_model": "openhermes:latest",
+  "cost": "free",
+  "provider": "ollama-local",
+  "replaced_paid_model": "cursor-grok-4.5-high-fast",
+  "replaced_paid_pricing": {
+    "variant": "Grok 4.5 Fast",
+    "input_per_million_usd": 4,
+    "output_per_million_usd": 18,
+    "notes": "High effort increases tokens used per task; Fast doubles/triples the per-token rate vs base Grok 4.5 ($2/$6)."
+  },
+  "cursor_desktop": {
+    "openai_api_key": "ollama",
+    "override_openai_base_url": "REPLACE_WITH_TUNNEL_URL/v1",
+    "add_custom_model": "hermes",
+    "turn_auto_off": true,
+    "select_model": "hermes"
+  },
+  "hermes_agent": {
+    "provider": "custom",
+    "base_url": "http://127.0.0.1:11434/v1",
+    "default": "hermes",
+    "context_length": 8192,
+    "api_mode": "chat_completions",
+    "cost": "free",
+    "note": "Local Ollama via Custom Endpoint \u2014 never provider ollama-cloud for free local use."
+  },
+  "cloud_agents": {
+    "warning": "Cloud Agents cannot use local Ollama. Do not start Cloud Agents on Grok 4.5 High Fast for Hermes work — use Cursor Desktop or Hermes Agent with the locked hermes model (free).",
+    "cheapest_cloud_fallback": "claude-3-haiku",
+    "cheapest_cloud_notes": "Claude 3 Haiku or GPT-4o-mini are ~50-100x cheaper than Grok 4.5 High Fast."
+  }
+}

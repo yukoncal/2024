@@ -1,0 +1,14 @@
+---
+description: Lock this project to free local Hermes; do not use paid Grok for Hermes work
+alwaysApply: true
+---
+
+# Locked free Hermes model
+
+This project locks everyday chat/agent work to the **free local Ollama model `hermes`** (source: `openhermes`).
+
+- Prefer `./scripts/lock-hermes.sh`, `./scripts/hermes-doctor.sh`, `./scripts/hermes-use-ollama.sh`, `./scripts/open-hermes.sh`, and `./scripts/verify-hermes.sh`.
+- Do **not** recommend or default to **Grok 4.5 High Fast** (`cursor-grok-4.5-high-fast`) for Hermes workflows — that model is paid ($4/M input, $18/M output on Fast).
+- **Hermes Agent** (Nous): local Ollama must use `provider: custom` + `http://127.0.0.1:11434/v1` — never `ollama-cloud` for free local use. Run `./scripts/hermes-use-ollama.sh`.
+- Cloud Agents cannot use local Ollama. For free Hermes, instruct the user to use **Cursor Desktop** (tunnel + model `hermes`, Auto OFF) or **Hermes Agent** with the custom endpoint.
+- Respect `config/hermes.lock.json`. Do not change the locked model unless the user explicitly unlocks it.
