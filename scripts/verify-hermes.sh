@@ -8,7 +8,7 @@ source "${ROOT}/scripts/lib/hermes-lock.sh"
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:11434/v1}"
 MODEL="$(hermes_lock_assert "${MODEL:-}")" || exit 1
-EXPECT="${EXPECT:-ok}"
+EXPECT="${EXPECT:-hermes-ok}"
 
 echo "Listing models at ${BASE_URL}/models ..."
 curl -fsS "${BASE_URL}/models" | sed 's/},{/},\n{/g'

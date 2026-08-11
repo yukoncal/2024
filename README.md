@@ -7,15 +7,15 @@
 ---
 
 This repository contains two main projects:
-1. **Ollama to Cursor Connection**: Scripts and docs to use **free local Hermes** (and other Ollama models) in Cursor Desktop.
+1. **Free local Hermes**: Locked Ollama model `hermes` for **Cursor Desktop** and **Hermes Agent** (Nous) — $0, replaces paid Grok 4.5 High Fast.
 2. **YouTube Video Production Pipeline**: A Mission Control hub for managing a three-channel video production pipeline.
 
 ---
 
-# Connect Ollama to Cursor — locked free Hermes
+# Free local Hermes (locked)
 
 **Default model is locked to free local `hermes`** (backed by already-downloaded `openhermes`).  
-This replaces paid **Grok 4.5 High Fast** for everyday Hermes work.
+This replaces paid **Grok 4.5 High Fast** for everyday Hermes work in Cursor Desktop **and** [Hermes Agent](https://docs.ollama.com/integrations/hermes).
 
 Lock file: [`config/hermes.lock.json`](config/hermes.lock.json)
 
@@ -49,6 +49,31 @@ This:
 - Creates/keeps the Cursor-safe alias `hermes`
 - Writes the lock in `config/hermes.lock.json`
 - Smoke-tests the local OpenAI-compatible endpoint
+
+## Hermes Agent (Nous) — free local Ollama
+
+Hermes Agent is separate from Cursor. Point it at **local** Ollama with provider **`custom`** (not `ollama-cloud`):
+
+```bash
+./scripts/lock-hermes.sh          # ensure free model alias exists
+./scripts/hermes-use-ollama.sh    # writes ~/.hermes/config.yaml
+hermes                            # or: ollama launch hermes
+```
+
+| Setting | Locked value |
+| --- | --- |
+| `model.provider` | `custom` |
+| `model.base_url` | `http://127.0.0.1:11434/v1` |
+| `model.default` | `hermes` |
+
+Install Hermes Agent if needed:
+
+```bash
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+# or guided: ollama launch hermes
+```
+
+For slow CPU inference, `hermes-use-ollama.sh` sets `HERMES_API_TIMEOUT=1800` in `~/.hermes/.env`.
 
 ## Cursor Settings → Models (Desktop) — pin these
 

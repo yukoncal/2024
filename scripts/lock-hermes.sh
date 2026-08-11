@@ -92,14 +92,17 @@ Cursor Desktop → Settings → Models (lock these):
 
 Next steps to finish the fix:
   1. On your machine: keep Ollama running (\`ollama serve\`)
-  2. Expose it (Cloudflare preferred — avoids ngrok browser warning):
+  2. Hermes Agent (free local): ./scripts/hermes-use-ollama.sh && hermes
+  3. Cursor Desktop — expose HTTPS (Cloudflare preferred):
        ./scripts/expose-for-cursor.sh
-  3. Paste the printed https://…/v1 URL into Override OpenAI Base URL
-  4. Add model \`${LOCKED_MODEL}\`, turn Auto off, select \`${LOCKED_MODEL}\`
-  5. Smoke test: Reply with exactly: hermes-ok
-  6. For future Cloud Agents: do NOT pick Grok 4.5 High Fast for Hermes work
+  4. Paste the printed https://…/v1 URL into Override OpenAI Base URL
+  5. Add model \`${LOCKED_MODEL}\`, turn Auto off, select \`${LOCKED_MODEL}\`
+  6. Smoke test: Reply with exactly: hermes-ok
+  7. For future Cloud Agents: do NOT pick Grok 4.5 High Fast for Hermes work
 
 Open local free chat anytime:
   ./scripts/open-hermes.sh
+Diagnose anytime:
+  ./scripts/hermes-doctor.sh --fix
 ============================================================
 EOF

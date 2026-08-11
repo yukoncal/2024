@@ -18,7 +18,16 @@
     "turn_auto_off": true,
     "select_model": "hermes"
   },
+  "hermes_agent": {
+    "provider": "custom",
+    "base_url": "http://127.0.0.1:11434/v1",
+    "default": "hermes",
+    "context_length": 8192,
+    "api_mode": "chat_completions",
+    "cost": "free",
+    "note": "Local Ollama via Custom Endpoint \u2014 never provider ollama-cloud for free local use."
+  },
   "cloud_agents": {
-    "warning": "Cloud Agents cannot use local Ollama. Do not start Cloud Agents on Grok 4.5 High Fast for Hermes work — use Cursor Desktop with the locked hermes model (free), or pick a cheaper cloud model only if you must use Cloud Agents."
+    "warning": "Cloud Agents cannot use local Ollama. Do not start Cloud Agents on Grok 4.5 High Fast for Hermes work \u2014 use Cursor Desktop or Hermes Agent with the locked hermes model (free), or pick a cheaper cloud model only if you must use Cloud Agents."
   }
 }

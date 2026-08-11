@@ -26,6 +26,7 @@ Checks:
   • Locked model installed locally
   • Local OpenAI-compatible chat smoke test
   • Public tunnel URL (if configured) is reachable
+  • Hermes Agent ~/.hermes/config.yaml (provider=custom, not ollama-cloud)
   • Reminds you to pin hermes in Cursor Desktop (Auto OFF)
 EOF
       exit 0
@@ -257,7 +258,78 @@ else
 fi
 echo
 
-# --- 7. Desktop pin reminder ---
+# --- 7. Hermes Agent (Nous) config ---
+echo "Hermes Agent"
+HERMES_HOME="${HERMES_HOME:-${HOME}/.hermes}"
+HERMES_CFG="${HERMES_HOME}/config.yaml"
+if command -v hermes >/dev/null 2>&1; then
+  ok "hermes CLI found ($(command -v hermes))"
+else
+  warn "hermes CLI not installed (optional — Hermes Agent / Desktop)"
+  echo "         Install: curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash"
+  echo "         Or:      ollama launch hermes"
+fi
+
+if [[ -f "${HERMES_CFG}" ]]; then
+  agent_check="$(python3 - "${HERMES_CFG}" "${LOCKED_MODEL}" <<'PY'
+import sys
+from pathlib import Path
+path = Path(sys.argv[1])
+want = sys.argv[2]
+text = path.read_text(encoding="utf-8")
+try:
+    import yaml  # type: ignore
+    data = yaml.safe_load(text) or {}
+    m = data.get("model") or {}
+    provider = str(m.get("provider") or "")
+    base = str(m.get("base_url") or "")
+    default = str(m.get("default") or "")
+except Exception:
+    # Best-effort without PyYAML
+    provider = base = default = ""
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith("provider:"):
+            provider = s.split(":", 1)[1].strip().strip('"').strip("'")
+        elif s.startswith("base_url:"):
+            base = s.split(":", 1)[1].strip().strip('"').strip("'")
+        elif s.startswith("default:"):
+            default = s.split(":", 1)[1].strip().strip('"').strip("'")
+print(provider)
+print(base)
+print(default)
+print("ok" if provider == "custom" and "11434" in base and (default == want or default == f"{want}:latest") else "bad")
+PY
+)"
+  agent_provider="$(echo "$agent_check" | sed -n '1p')"
+  agent_base="$(echo "$agent_check" | sed -n '2p')"
+  agent_default="$(echo "$agent_check" | sed -n '3p')"
+  agent_status="$(echo "$agent_check" | sed -n '4p')"
+  if [[ "$agent_status" == "ok" ]]; then
+    ok "Hermes Agent pinned to free local Ollama (provider=custom, model=${agent_default})"
+  elif [[ "$agent_provider" == "ollama" || "$agent_provider" == "ollama-cloud" ]]; then
+    fail "Hermes Agent provider is '${agent_provider}' (cloud) — should be 'custom' for free local"
+    if [[ "$FIX" -eq 1 ]]; then
+      fixn "running hermes-use-ollama.sh"
+      "${ROOT}/scripts/hermes-use-ollama.sh" >/tmp/hermes-doctor-agent.log 2>&1 || true
+    fi
+  else
+    warn "Hermes Agent config present but not pinned to locked '${LOCKED_MODEL}' (provider=${agent_provider:-?}, model=${agent_default:-?})"
+    if [[ "$FIX" -eq 1 ]]; then
+      fixn "running hermes-use-ollama.sh"
+      "${ROOT}/scripts/hermes-use-ollama.sh" >/tmp/hermes-doctor-agent.log 2>&1 || true
+    fi
+  fi
+else
+  warn "no ~/.hermes/config.yaml yet — run ./scripts/hermes-use-ollama.sh after installing Hermes Agent"
+  if [[ "$FIX" -eq 1 ]] && curl -fsS "http://127.0.0.1:11434/api/tags" >/dev/null 2>&1; then
+    fixn "writing ~/.hermes/config.yaml via hermes-use-ollama.sh"
+    "${ROOT}/scripts/hermes-use-ollama.sh" >/tmp/hermes-doctor-agent.log 2>&1 || true
+  fi
+fi
+echo
+
+# --- 8. Desktop pin reminder ---
 echo "Cursor Desktop pin"
 ok "lock says: Auto OFF, model '${LOCKED_MODEL}', key 'ollama'"
 warn "Cloud Agents cannot use local Hermes — pin '${LOCKED_MODEL}' in Cursor Desktop"
@@ -282,11 +354,11 @@ if [[ "$FAIL" -gt 0 ]]; then
 fi
 
 if [[ "$WARN" -gt 0 ]]; then
-  echo "Hermes local core is OK, with warnings (usually tunnel / Desktop pin)."
-  echo "Finish Desktop pin:"
-  echo "  1. ./scripts/expose-for-cursor.sh"
-  echo "  2. Settings → Models → Base URL = https://…/v1 , model = ${LOCKED_MODEL}, Auto OFF"
-  echo "  3. Reply with exactly: hermes-ok"
+  echo "Hermes local core is OK, with warnings (usually tunnel / Desktop pin / Agent CLI)."
+  echo "Finish free Hermes:"
+  echo "  Cursor Desktop: ./scripts/expose-for-cursor.sh → Base URL https://…/v1 , model ${LOCKED_MODEL}, Auto OFF"
+  echo "  Hermes Agent:   ./scripts/hermes-use-ollama.sh → hermes  (provider custom)"
+  echo "  Smoke:          Reply with exactly: hermes-ok"
   exit 0
 fi
 

@@ -179,6 +179,49 @@ if (Get-Command cloudflared -ErrorAction SilentlyContinue) {
 }
 Write-Host ""
 
+Write-Host "Hermes Agent"
+$hermesHome = if ($env:HERMES_HOME) { $env:HERMES_HOME } else { Join-Path $HOME ".hermes" }
+$hermesCfg = Join-Path $hermesHome "config.yaml"
+if (Get-Command hermes -ErrorAction SilentlyContinue) {
+    Ok "hermes CLI found"
+} else {
+    WarnMsg "hermes CLI not installed (optional — Hermes Agent / Desktop)"
+    Write-Host "         Install: https://hermes-agent.nousresearch.com/  or  ollama launch hermes"
+}
+
+if (Test-Path $hermesCfg) {
+    $cfgText = Get-Content -Raw $hermesCfg
+    $provider = $null; $base = $null; $default = $null
+    foreach ($line in ($cfgText -split "`n")) {
+        $s = $line.Trim()
+        if ($s -match '^provider:\s*(.+)$') { $provider = $Matches[1].Trim().Trim('"').Trim("'") }
+        elseif ($s -match '^base_url:\s*(.+)$') { $base = $Matches[1].Trim().Trim('"').Trim("'") }
+        elseif ($s -match '^default:\s*(.+)$') { $default = $Matches[1].Trim().Trim('"').Trim("'") }
+    }
+    if ($provider -eq "custom" -and $base -match "11434" -and ($default -eq $lockedModel -or $default -eq "$lockedModel`:latest")) {
+        Ok "Hermes Agent pinned to free local Ollama (provider=custom, model=$default)"
+    } elseif ($provider -eq "ollama" -or $provider -eq "ollama-cloud") {
+        FailMsg "Hermes Agent provider is '$provider' (cloud) — should be 'custom' for free local"
+        if ($Fix) {
+            FixNote "running hermes-use-ollama.ps1"
+            & "$Root\scripts\hermes-use-ollama.ps1" | Out-Null
+        }
+    } else {
+        WarnMsg "Hermes Agent config present but not pinned to locked '$lockedModel' (provider=$provider, model=$default)"
+        if ($Fix) {
+            FixNote "running hermes-use-ollama.ps1"
+            & "$Root\scripts\hermes-use-ollama.ps1" | Out-Null
+        }
+    }
+} else {
+    WarnMsg "no ~/.hermes/config.yaml yet — run .\scripts\hermes-use-ollama.ps1 after installing Hermes Agent"
+    if ($Fix -and (Test-Ollama)) {
+        FixNote "writing ~/.hermes/config.yaml via hermes-use-ollama.ps1"
+        & "$Root\scripts\hermes-use-ollama.ps1" | Out-Null
+    }
+}
+Write-Host ""
+
 Write-Host "Cursor Desktop pin"
 Ok "lock says: Auto OFF, model '$lockedModel', key 'ollama'"
 WarnMsg "Cloud Agents cannot use local Hermes — pin '$lockedModel' in Cursor Desktop"
@@ -198,7 +241,9 @@ if ($script:Fail -gt 0) {
 }
 
 if ($script:Warn -gt 0) {
-    Write-Host "Hermes local core is OK, with warnings (usually tunnel / Desktop pin)."
+    Write-Host "Hermes local core is OK, with warnings (usually tunnel / Desktop pin / Agent CLI)."
+    Write-Host "  Cursor Desktop: .\scripts\expose-for-cursor.ps1 → model $lockedModel, Auto OFF"
+    Write-Host "  Hermes Agent:   .\scripts\hermes-use-ollama.ps1"
     exit 0
 }
 
