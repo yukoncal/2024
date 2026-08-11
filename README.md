@@ -63,6 +63,17 @@ python3 -m http.server 8080
 | `qwen3.5:9b` | Same weights; `:` / `.` can break Cursor model names |
 | `qwen3-vl:4b-instruct` | Vision |
 | `llama3.1:8b` | General chat |
+| `openhermes` | OpenHermes 2.5 (Mistral 7B); general chat/instruct |
+
+## Connect OpenHermes
+
+```bash
+./scripts/setup-hermes.sh
+./scripts/verify-hermes.sh
+```
+
+Then in **Cursor Desktop** → **Settings** → **Models**, add custom model `openhermes` (no alias needed — the
+name has no `:` / `.` combination that trips up Cursor).
 
 ## Verify the endpoint
 
