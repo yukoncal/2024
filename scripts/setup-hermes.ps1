@@ -4,9 +4,12 @@
 # Run in PowerShell:  .\scripts\setup-hermes.ps1
 $ErrorActionPreference = "Stop"
 
-$ModelAlias = if ($env:MODEL_ALIAS) { $env:MODEL_ALIAS } else { "hermes" }
-$PreferredSource = if ($env:MODEL_SOURCE) { $env:MODEL_SOURCE } else { "" }
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$LockFile = Join-Path $Root "config\hermes.lock.json"
+$lock = Get-Content $LockFile -Raw | ConvertFrom-Json
+$ModelAlias = if ($lock.model) { $lock.model } else { "hermes" }
+if ($env:MODEL_ALIAS) { $ModelAlias = $env:MODEL_ALIAS }
+$PreferredSource = if ($env:MODEL_SOURCE) { $env:MODEL_SOURCE } else { "" }
 $Modelfile = Join-Path $Root "ollama\Modelfile.hermes"
 $Candidates = @("openhermes", "openhermes:latest", "llama3.1:8b", "mistral", "phi3")
 

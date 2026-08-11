@@ -1,16 +1,25 @@
-# Verify the OpenAI-compatible Ollama endpoint for the Hermes alias.
+# Verify the OpenAI-compatible Ollama endpoint for the locked free Hermes model.
 # Run in PowerShell:  .\scripts\verify-hermes.ps1
 $ErrorActionPreference = "Stop"
 
+$Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$LockFile = Join-Path $Root "config\hermes.lock.json"
+$lock = Get-Content $LockFile -Raw | ConvertFrom-Json
+$LockedModel = if ($lock.model) { $lock.model } else { "hermes" }
+
 $BaseUrl = if ($env:BASE_URL) { $env:BASE_URL } else { "http://127.0.0.1:11434/v1" }
-$Model   = if ($env:MODEL)    { $env:MODEL }    else { "hermes" }
+$Model = $LockedModel
+if ($env:MODEL -and $env:MODEL -ne $LockedModel -and $env:MODEL -ne "${LockedModel}:latest") {
+    Write-Error "model '$($env:MODEL)' is blocked. Hermes is locked to free local model '$LockedModel'."
+    exit 1
+}
 
 Write-Host "Listing models at $BaseUrl/models ..."
 $models = Invoke-RestMethod -Uri "$BaseUrl/models" -Headers @{ Authorization = "Bearer ollama" }
 $models | ConvertTo-Json -Depth 6
 Write-Host ""
 
-Write-Host "Chat completion smoke test with model '$Model' ..."
+Write-Host "Chat completion smoke test with locked free model '$Model' ..."
 $body = @{
     model      = $Model
     messages   = @(@{ role = "user"; content = "Reply with exactly: ok" })
@@ -30,8 +39,8 @@ $response | ConvertTo-Json -Depth 8
 $content = $response.choices[0].message.content
 if ($content) {
     Write-Host ""
-    Write-Host "OK — Hermes endpoint looks ready for Cursor (use a public HTTPS base URL in Cursor settings)."
+    Write-Host "OK — locked free Hermes is ready (not Grok)."
 } else {
-    Write-Error "Unexpected response — run .\scripts\setup-hermes.ps1 first (uses your local free model)."
+    Write-Error "Unexpected response — run .\scripts\lock-hermes.ps1 first."
     exit 1
 }

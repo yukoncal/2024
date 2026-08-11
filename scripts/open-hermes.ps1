@@ -1,10 +1,16 @@
-# Open an interactive Hermes chat using a free local Ollama model.
-# Prefers the hermes alias created by setup-hermes.ps1; falls back to openhermes.
+# Open an interactive Hermes chat using the locked free local Ollama model.
 # Run in PowerShell:  .\scripts\open-hermes.ps1
 $ErrorActionPreference = "Stop"
 
-$Model = if ($env:MODEL) { $env:MODEL } else { "hermes" }
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$LockFile = Join-Path $Root "config\hermes.lock.json"
+$lock = Get-Content $LockFile -Raw | ConvertFrom-Json
+$Model = if ($lock.model) { $lock.model } else { "hermes" }
+
+if ($env:MODEL -and $env:MODEL -ne $Model -and $env:MODEL -ne "${Model}:latest") {
+    Write-Error "model '$($env:MODEL)' is blocked. Hermes is locked to free local model '$Model'."
+    exit 1
+}
 
 if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
     Write-Error "Ollama is not installed. Install from https://ollama.com then re-run."
@@ -57,19 +63,11 @@ if (-not (Test-Ollama)) {
 
 $localModels = @(Get-LocalModels)
 if (-not (Test-HasModel $Model $localModels)) {
-    if (Test-HasModel "openhermes" $localModels) {
-        $Model = "openhermes"
-    } else {
-        Write-Error @"
-No hermes/openhermes model found locally.
-Run first (uses your already-downloaded free model when present):
-  $($Root)\scripts\setup-hermes.ps1
-"@
-        exit 1
-    }
+    Write-Error "Locked model '$Model' not found locally. Run: $($Root)\scripts\lock-hermes.ps1"
+    exit 1
 }
 
-Write-Host "Opening Hermes with free local model: $Model"
-Write-Host "(Ctrl+D or /bye to exit)"
+Write-Host "Opening locked free Hermes model: $Model"
+Write-Host "(Ctrl+D or /bye to exit) — not Grok; `$0 local Ollama"
 Write-Host ""
 ollama run $Model

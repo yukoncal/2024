@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Open an interactive Hermes chat using a free local Ollama model.
-# Prefers the hermes alias created by setup-hermes.sh; falls back to openhermes.
+# Open an interactive Hermes chat using the locked free local Ollama model.
 set -euo pipefail
 
-MODEL="${MODEL:-hermes}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=lib/hermes-lock.sh
+source "${ROOT}/scripts/lib/hermes-lock.sh"
+
+MODEL="$(hermes_lock_assert "${MODEL:-}")" || exit 1
 
 if ! command -v ollama >/dev/null 2>&1; then
   echo "Ollama is not installed. Install from https://ollama.com then re-run." >&2
@@ -43,17 +45,12 @@ has_model() {
 }
 
 if ! has_model "$MODEL"; then
-  if has_model openhermes; then
-    MODEL="openhermes"
-  else
-    echo "No hermes/openhermes model found locally." >&2
-    echo "Run first (uses your already-downloaded free model when present):" >&2
-    echo "  ${ROOT}/scripts/setup-hermes.sh" >&2
-    exit 1
-  fi
+  echo "Locked model '${MODEL}' not found locally." >&2
+  echo "Run: ${ROOT}/scripts/lock-hermes.sh" >&2
+  exit 1
 fi
 
-echo "Opening Hermes with free local model: ${MODEL}"
-echo "(Ctrl+D or /bye to exit)"
+echo "Opening locked free Hermes model: ${MODEL}"
+echo "(Ctrl+D or /bye to exit) — not Grok; \$0 local Ollama"
 echo
 exec ollama run "${MODEL}"

@@ -4,9 +4,11 @@
 # Creates a short Cursor-safe alias: hermes
 set -euo pipefail
 
-MODEL_ALIAS="${MODEL_ALIAS:-hermes}"
-PREFERRED_SOURCE="${MODEL_SOURCE:-}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=lib/hermes-lock.sh
+source "${ROOT}/scripts/lib/hermes-lock.sh"
+MODEL_ALIAS="$(hermes_lock_read_model)"
+PREFERRED_SOURCE="${MODEL_SOURCE:-}"
 MODELFILE="${ROOT}/ollama/Modelfile.hermes"
 # Free models we will reuse if already downloaded (first match wins when MODEL_SOURCE unset).
 CANDIDATES=(openhermes openhermes:latest llama3.1:8b mistral phi3)
