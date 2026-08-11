@@ -227,15 +227,23 @@ if tunnel_is_placeholder "${TUNNEL_URL}"; then
   warn "no live public tunnel URL saved (Cursor Desktop needs HTTPS)"
   echo "         Run: ./scripts/expose-for-cursor.sh"
   echo "         Then paste https://…/v1 into Override OpenAI Base URL"
-elif curl -fsS --max-time 8 "${TUNNEL_URL}/models" \
-      -H "Authorization: Bearer ollama" \
-      -H "ngrok-skip-browser-warning: true" >/dev/null 2>&1; then
-  ok "public tunnel reachable: ${TUNNEL_URL}"
 else
-  fail "configured tunnel not reachable: ${TUNNEL_URL}"
-  if [[ "$FIX" -eq 1 ]]; then
-    fixn "clearing dead tunnel URL from lock (re-run expose-for-cursor.sh)"
-    python3 - "${HERMES_LOCK_FILE}" <<'PY'
+  tunnel_code="$(curl -sS -o /tmp/hermes-doctor-tunnel.out -w '%{http_code}' --max-time 8 \
+    "${TUNNEL_URL}/models" \
+    -H "Authorization: Bearer ollama" \
+    -H "ngrok-skip-browser-warning: true" 2>/dev/null || echo "000")"
+  if [[ "${tunnel_code}" == "200" ]]; then
+    ok "public tunnel reachable: ${TUNNEL_URL}"
+  elif [[ "${tunnel_code}" == "403" || "${tunnel_code}" == "401" ]]; then
+    # Common from Cloud Agent VMs / bot filters; Cursor Desktop may still reach it.
+    warn "tunnel returned HTTP ${tunnel_code} from this host: ${TUNNEL_URL}"
+    echo "         If cloudflared/ngrok is running, pin this URL in Cursor Desktop anyway."
+    echo "         Re-test from your machine: curl -fsS '${TUNNEL_URL}/models' -H 'Authorization: Bearer ollama'"
+  else
+    fail "configured tunnel not reachable (HTTP ${tunnel_code}): ${TUNNEL_URL}"
+    if [[ "$FIX" -eq 1 ]]; then
+      fixn "clearing dead tunnel URL from lock (re-run expose-for-cursor.sh)"
+      python3 - "${HERMES_LOCK_FILE}" <<'PY'
 import json, sys
 path = sys.argv[1]
 with open(path, encoding="utf-8") as f:
@@ -247,7 +255,8 @@ with open(path, "w", encoding="utf-8") as f:
     json.dump(d, f, indent=2)
     f.write("\n")
 PY
-    warn "dead tunnel cleared — run ./scripts/expose-for-cursor.sh on your machine"
+      warn "dead tunnel cleared — run ./scripts/expose-for-cursor.sh on your machine"
+    fi
   fi
 fi
 
