@@ -1,0 +1,8 @@
+# Cursor-friendly short alias for a free local instruct model (default: OpenHermes).
+# Prefer an already-downloaded model — setup-hermes.sh rewrites FROM when needed.
+FROM openhermes
+
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+PARAMETER num_ctx 8192
+PARAMETER num_predict 4096

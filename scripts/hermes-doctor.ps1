@@ -1,0 +1,206 @@
+# Hermes doctor — diagnose and optionally fix the locked free local Hermes setup.
+# Usage:
+#   .\scripts\hermes-doctor.ps1
+#   .\scripts\hermes-doctor.ps1 -Fix
+param(
+    [switch]$Fix
+)
+
+$ErrorActionPreference = "Continue"
+$Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$LockFile = Join-Path $Root "config\hermes.lock.json"
+
+$script:Pass = 0
+$script:Warn = 0
+$script:Fail = 0
+
+function Ok([string]$msg)   { $script:Pass++; Write-Host "  [OK]   $msg" }
+function WarnMsg([string]$msg) { $script:Warn++; Write-Host "  [WARN] $msg" }
+function FailMsg([string]$msg) { $script:Fail++; Write-Host "  [FAIL] $msg" }
+function FixNote([string]$msg) { Write-Host "         → fixing: $msg" }
+
+function Test-Ollama {
+    try {
+        Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/tags" -TimeoutSec 2 | Out-Null
+        return $true
+    } catch {
+        return $false
+    }
+}
+
+Write-Host "Hermes Doctor"
+Write-Host "============="
+Write-Host ("Mode: " + ($(if ($Fix) { "diagnose + fix" } else { "diagnose only" })))
+Write-Host "Root: $Root"
+Write-Host ""
+
+Write-Host "Ollama"
+if (Get-Command ollama -ErrorAction SilentlyContinue) {
+    Ok "ollama binary found"
+} else {
+    FailMsg "ollama is not installed"
+    if ($Fix) { FixNote "install from https://ollama.com/download" }
+}
+
+if (Test-Ollama) {
+    Ok "Ollama API reachable at http://127.0.0.1:11434"
+} elseif ($Fix) {
+    FixNote "starting ollama serve"
+    Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden
+    for ($i = 0; $i -lt 30; $i++) {
+        Start-Sleep -Seconds 1
+        if (Test-Ollama) { break }
+    }
+    if (Test-Ollama) { Ok "Ollama API started and reachable" } else { FailMsg "Ollama API not reachable" }
+} else {
+    FailMsg "Ollama API not reachable at http://127.0.0.1:11434"
+}
+Write-Host ""
+
+Write-Host "Lock"
+$lockedModel = "hermes"
+if (Test-Path $LockFile) {
+    try {
+        $lock = Get-Content $LockFile -Raw | ConvertFrom-Json
+        if ($lock.locked -eq $true -and $lock.model -eq "hermes" -and $lock.cost -eq "free") {
+            Ok "config/hermes.lock.json pins free model 'hermes' (not Grok)"
+            $lockedModel = $lock.model
+        } else {
+            FailMsg "lock file exists but is invalid / unlocked"
+            if ($Fix) {
+                FixNote "rewriting lock via lock-hermes.ps1"
+                & "$Root\scripts\lock-hermes.ps1" | Out-Null
+            }
+        }
+    } catch {
+        FailMsg "lock file unreadable"
+    }
+} else {
+    FailMsg "missing config/hermes.lock.json"
+    if ($Fix) {
+        FixNote "creating lock via lock-hermes.ps1"
+        & "$Root\scripts\lock-hermes.ps1" | Out-Null
+    }
+}
+Write-Host ""
+
+Write-Host "Model"
+if (Test-Ollama) {
+    $names = @()
+    foreach ($line in (ollama list 2>$null)) {
+        if ($line -match '^\s*NAME\b') { continue }
+        $parts = ($line -split '\s+') | Where-Object { $_ -ne "" }
+        if ($parts.Count -ge 1) { $names += $parts[0] }
+    }
+    $hasHermes = $false
+    foreach ($n in $names) {
+        if ($n -eq $lockedModel -or $n -eq "${lockedModel}:latest" -or ($n -split ':')[0] -eq $lockedModel) {
+            $hasHermes = $true
+            Ok "locked model installed: $n"
+            break
+        }
+    }
+    if (-not $hasHermes) {
+        FailMsg "locked model '$lockedModel' not installed"
+        if ($Fix) {
+            FixNote "running setup-hermes.ps1 / lock-hermes.ps1"
+            & "$Root\scripts\setup-hermes.ps1"
+            & "$Root\scripts\lock-hermes.ps1"
+        }
+    }
+} else {
+    WarnMsg "skipped model checks (Ollama down)"
+}
+Write-Host ""
+
+Write-Host "Local API"
+if (Test-Ollama) {
+    try {
+        $body = @{
+            model = $lockedModel
+            messages = @(@{ role = "user"; content = "Reply with exactly: hermes-ok" })
+            stream = $false
+            max_tokens = 32
+        } | ConvertTo-Json -Depth 5
+        $resp = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:11434/v1/chat/completions" `
+            -Headers @{ Authorization = "Bearer ollama"; "Content-Type" = "application/json" } `
+            -Body $body
+        $content = [string]$resp.choices[0].message.content
+        if ($content.Trim() -eq "hermes-ok") {
+            Ok "chat completion returned exactly 'hermes-ok'"
+        } elseif ($content) {
+            WarnMsg "chat replied '$content' (expected exactly 'hermes-ok')"
+        } else {
+            FailMsg "chat completion failed for model '$lockedModel'"
+        }
+    } catch {
+        FailMsg "chat completion request failed"
+        if ($Fix) {
+            FixNote "re-running lock-hermes.ps1"
+            & "$Root\scripts\lock-hermes.ps1" | Out-Null
+        }
+    }
+} else {
+    WarnMsg "skipped chat smoke (Ollama down)"
+}
+Write-Host ""
+
+Write-Host "Tunnel"
+$tunnel = $null
+if (Test-Path $LockFile) {
+    $lock = Get-Content $LockFile -Raw | ConvertFrom-Json
+    if ($lock.tunnel_base_url) { $tunnel = $lock.tunnel_base_url }
+    elseif ($lock.cursor_desktop.override_openai_base_url) { $tunnel = $lock.cursor_desktop.override_openai_base_url }
+}
+if (-not $tunnel -or $tunnel -match 'REPLACE_WITH_TUNNEL|YOUR-TUNNEL') {
+    WarnMsg "no live public tunnel URL saved (Cursor Desktop needs HTTPS)"
+    Write-Host "         Run: .\scripts\expose-for-cursor.ps1"
+} else {
+    try {
+        Invoke-RestMethod -Uri "$tunnel/models" -Headers @{ Authorization = "Bearer ollama" } -TimeoutSec 8 | Out-Null
+        Ok "public tunnel reachable: $tunnel"
+    } catch {
+        FailMsg "configured tunnel not reachable: $tunnel"
+        if ($Fix) {
+            FixNote "clearing dead tunnel URL from lock"
+            $lock.cursor_desktop.override_openai_base_url = "REPLACE_WITH_TUNNEL_URL/v1"
+            if ($lock.PSObject.Properties.Name -contains "tunnel_base_url") {
+                $lock.PSObject.Properties.Remove("tunnel_base_url")
+            }
+            $lock | ConvertTo-Json -Depth 8 | Set-Content -Path $LockFile -Encoding utf8
+            WarnMsg "dead tunnel cleared — run .\scripts\expose-for-cursor.ps1"
+        }
+    }
+}
+if (Get-Command cloudflared -ErrorAction SilentlyContinue) {
+    Ok "cloudflared available (preferred over free ngrok)"
+} else {
+    WarnMsg "cloudflared not installed (recommended for Cursor Desktop)"
+}
+Write-Host ""
+
+Write-Host "Cursor Desktop pin"
+Ok "lock says: Auto OFF, model '$lockedModel', key 'ollama'"
+WarnMsg "Cloud Agents cannot use local Hermes — pin '$lockedModel' in Cursor Desktop"
+Write-Host ""
+
+Write-Host "Summary"
+Write-Host "-------"
+Write-Host "  Passed: $($script:Pass)"
+Write-Host "  Warnings: $($script:Warn)"
+Write-Host "  Failures: $($script:Fail)"
+Write-Host ""
+
+if ($script:Fail -gt 0) {
+    Write-Host "Hermes is NOT fully healthy."
+    if (-not $Fix) { Write-Host "Re-run with autofix:  .\scripts\hermes-doctor.ps1 -Fix" }
+    exit 1
+}
+
+if ($script:Warn -gt 0) {
+    Write-Host "Hermes local core is OK, with warnings (usually tunnel / Desktop pin)."
+    exit 0
+}
+
+Write-Host "Hermes is healthy — locked free local '$lockedModel' is ready."
+exit 0

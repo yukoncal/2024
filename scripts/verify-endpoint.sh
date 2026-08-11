@@ -3,9 +3,32 @@
 # Lists models, runs one chat completion, exits non-zero on failure.
 set -euo pipefail
 
-BASE_URL="${OLLAMA_BASE_URL:-https://brought-passage-trapeze.ngrok-free.dev/v1}"
-MODEL="${OLLAMA_MODEL:-qwen2.5-coder:latest}"
-EXPECT="${OLLAMA_EXPECT:-ollama-ok}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LOCK_FILE="${ROOT}/config/hermes.lock.json"
+
+# Prefer env, then locked tunnel URL, then local Ollama (dead ngrok URLs are not defaults).
+if [[ -z "${OLLAMA_BASE_URL:-}" && -f "${LOCK_FILE}" ]]; then
+  OLLAMA_BASE_URL="$(python3 - "${LOCK_FILE}" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1], encoding="utf-8"))
+print(d.get("tunnel_base_url") or d.get("cursor_desktop", {}).get("override_openai_base_url") or "")
+PY
+)"
+fi
+if [[ -z "${OLLAMA_BASE_URL:-}" || "${OLLAMA_BASE_URL}" == *"REPLACE_WITH_TUNNEL"* || "${OLLAMA_BASE_URL}" == *"YOUR-TUNNEL"* ]]; then
+  OLLAMA_BASE_URL="http://127.0.0.1:11434/v1"
+fi
+BASE_URL="${OLLAMA_BASE_URL}"
+
+if [[ -z "${OLLAMA_MODEL:-}" && -f "${LOCK_FILE}" ]]; then
+  OLLAMA_MODEL="$(python3 - "${LOCK_FILE}" <<'PY'
+import json, sys
+print(json.load(open(sys.argv[1], encoding="utf-8")).get("model", "hermes"))
+PY
+)"
+fi
+MODEL="${OLLAMA_MODEL:-hermes}"
+EXPECT="${OLLAMA_EXPECT:-ok}"
 
 if ! command -v curl >/dev/null 2>&1; then
   echo "error: missing required command: curl" >&2

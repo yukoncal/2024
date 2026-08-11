@@ -7,39 +7,89 @@
 ---
 
 This repository contains two main projects:
-1. **Ollama to Cursor Connection**: Scripts and docs to use local models (like Qwen3.5 9B) in Cursor Desktop.
+1. **Ollama to Cursor Connection**: Scripts and docs to use **free local Hermes** (and other Ollama models) in Cursor Desktop.
 2. **YouTube Video Production Pipeline**: A Mission Control hub for managing a three-channel video production pipeline.
 
 ---
 
-# Connect Ollama to Cursor
+# Connect Ollama to Cursor — locked free Hermes
 
-Your Ollama OpenAI-compatible API is live at:
+**Default model is locked to free local `hermes`** (backed by already-downloaded `openhermes`).  
+This replaces paid **Grok 4.5 High Fast** for everyday Hermes work.
 
-```text
-https://brought-passage-trapeze.ngrok-free.dev/v1
+Lock file: [`config/hermes.lock.json`](config/hermes.lock.json)
+
+## Grok 4.5 High Fast cost (what we replace)
+
+| Variant | Input | Output |
+| --- | --- | --- |
+| **Grok 4.5 Fast** (includes High Fast) | **$4 / M tokens** | **$18 / M tokens** |
+| Grok 4.5 (base) | $2 / M tokens | $6 / M tokens |
+
+Source: [Cursor Grok 4.5 docs](https://cursor.com/docs/models/grok-4-5).  
+“High” effort does **not** change the per-token rate — it uses **more tokens** per task. Fast is the expensive rate tier.
+
+**Locked Hermes cost: $0** (runs on your machine via Ollama).
+
+## One command: lock free Hermes
+
+```bash
+./scripts/lock-hermes.sh
 ```
 
-Verified: Ollama chat completions working (`qwen2.5-coder:latest` → `ollama-ok`).
+Diagnose / autofix anytime:
 
-## Cursor Settings → Models (Desktop)
+```bash
+./scripts/hermes-doctor.sh          # diagnose
+./scripts/hermes-doctor.sh --fix   # diagnose + autofix
+```
 
-Cloud Agent tabs keep showing the hosted Cursor model (e.g. Grok). Wire Ollama in **Cursor Desktop**:
+This:
+- Reuses your already-downloaded free model (`openhermes`)
+- Creates/keeps the Cursor-safe alias `hermes`
+- Writes the lock in `config/hermes.lock.json`
+- Smoke-tests the local OpenAI-compatible endpoint
+
+## Cursor Settings → Models (Desktop) — pin these
+
+Cloud Agent tabs **cannot** leave Grok mid-run. Wire free Hermes in **Cursor Desktop**:
 
 1. Open **Cursor Desktop** → **Settings** → **Models**
-2. **OpenAI API Key:** `ollama` (any non-empty string)
-3. **Override OpenAI Base URL:** `https://brought-passage-trapeze.ngrok-free.dev/v1`
-4. **Add custom model:** `qwen2.5-coder:latest` (or `qwen359b`)
-5. In the chat model picker, turn **Auto** off and select that model
-6. Send: `Reply with exactly: ollama-ok`
+2. **OpenAI API Key:** `ollama`
+3. **Override OpenAI Base URL:** `https://YOUR-TUNNEL/v1` (from `./scripts/expose-for-cursor.sh`)
+4. **Add custom model:** `hermes`
+5. In the chat model picker: turn **Auto OFF** and select **`hermes`**
+6. Send: `Reply with exactly: hermes-ok`
 
 Do **not** append `/chat/completions` — Cursor adds that path itself.
 
-| Setting | Value |
+| Setting | Locked value |
 | --- | --- |
 | OpenAI API Key | `ollama` |
-| Override OpenAI Base URL | `https://brought-passage-trapeze.ngrok-free.dev/v1` |
-| Add model | `qwen2.5-coder:latest` |
+| Override OpenAI Base URL | `https://YOUR-TUNNEL/v1` |
+| Add model | `hermes` |
+| Auto | **OFF** |
+| Selected model | **`hermes`** |
+
+## Next steps to ensure everything is fixed
+
+1. **Stop using Grok for Hermes work** — this Cloud Agent run is already on `cursor-grok-4.5-high-fast`; finish that tab, then switch.
+2. On your machine: `./scripts/lock-hermes.sh`
+3. Keep Ollama up: `ollama serve`
+4. Expose HTTPS (Cloudflare preferred — free ngrok often blocks Cursor):
+   ```bash
+   ./scripts/expose-for-cursor.sh
+   ```
+5. Paste the printed `https://…/v1` into **Override OpenAI Base URL**
+6. Add model `hermes`, **Auto OFF**, select `hermes`
+7. Confirm with: `Reply with exactly: hermes-ok`
+8. For future Cloud Agents: **do not** pick Grok 4.5 High Fast for Hermes — use Desktop + locked `hermes` (free)
+
+Local free chat (no Cursor cloud billing):
+
+```bash
+./scripts/open-hermes.sh
+```
 
 ## YouTube Video Production Pipeline
 
@@ -58,34 +108,43 @@ python3 -m http.server 8080
 
 | Model id | Notes |
 | --- | --- |
-| `qwen2.5-coder:latest` | Coding-focused (default smoke-test target) |
+| `hermes` | **Locked default** — free local alias (from `openhermes`) |
+| `openhermes` | Free OpenHermes 2.5; source weights for `hermes` |
+| `qwen2.5-coder:latest` | Coding-focused (optional) |
 | `qwen359b` | Cursor-safe alias for Qwen3.5 9B |
 | `qwen3.5:9b` | Same weights; `:` / `.` can break Cursor model names |
 | `qwen3-vl:4b-instruct` | Vision |
-| `llama3.1:8b` | General chat |
+| `llama3.1:8b` | General chat (can back Hermes via `MODEL_SOURCE=…`) |
+
+Override Hermes source only if you intentionally want a different **free local** model:
+
+```bash
+MODEL_SOURCE=llama3.1:8b ./scripts/setup-hermes.sh
+./scripts/lock-hermes.sh
+```
 
 ## Verify the endpoint
 
 ```bash
+./scripts/verify-hermes.sh
+# or (defaults to locked hermes):
 ./scripts/verify-endpoint.sh
 ```
 
 Overrides:
 
 ```bash
-OLLAMA_BASE_URL='https://brought-passage-trapeze.ngrok-free.dev/v1' \
-OLLAMA_MODEL='qwen2.5-coder:latest' \
+OLLAMA_BASE_URL='https://YOUR-TUNNEL/v1' \
+OLLAMA_MODEL='hermes' \
+OLLAMA_EXPECT='hermes-ok' \
 ./scripts/verify-endpoint.sh
 ```
 
-The script lists `/v1/models`, runs one `/v1/chat/completions`, and exits non-zero unless the assistant reply is exactly `ollama-ok`.
-
 ## Notes
 
-- Cursor cannot call `localhost` for custom OpenAI endpoints (requests go through Cursor’s backend), so this public HTTPS tunnel is required.
-- **Important:** If using a free **ngrok** account, you must bypass the ngrok browser warning for Cursor to reach your endpoint. Cursor's backend does not send the required `ngrok-skip-browser-warning` header.
-- **Fix for ngrok:** Consider using **cloudflared** instead, or use a custom domain with ngrok if possible. If you must use ngrok, the Agent and Chat may fail with a "browser warning" error.
-- Keep the ngrok tunnel running while using the model.
-- Free ngrok URLs change when the tunnel restarts — update the Base URL if the host changes.
-- Cloud Agents cannot switch your desktop model picker; configure this in **Cursor desktop**.
-- **Model Names:** If Cursor shows "Model not found", ensure you are using a name without special characters like `:` or `.`. Use the alias `qwen359b` instead of `qwen3.5:9b`.
+- Cursor cannot call `localhost` for custom OpenAI endpoints (requests go through Cursor’s backend), so a public HTTPS tunnel is required for Desktop.
+- Prefer **cloudflared** over free **ngrok** (ngrok browser warning blocks Cursor).
+- Keep the tunnel running while using the model in Cursor Desktop.
+- Free tunnel URLs change when restarted — update Base URL / re-run expose so `hermes.lock.json` stays current.
+- Cloud Agents cannot switch your desktop model picker and cannot use local Ollama.
+- **Model Names:** If Cursor shows "Model not found", use `hermes` (no `:` / `.`).
