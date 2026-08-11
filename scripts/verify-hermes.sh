@@ -8,6 +8,7 @@ source "${ROOT}/scripts/lib/hermes-lock.sh"
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:11434/v1}"
 MODEL="$(hermes_lock_assert "${MODEL:-}")" || exit 1
+EXPECT="${EXPECT:-ok}"
 
 echo "Listing models at ${BASE_URL}/models ..."
 curl -fsS "${BASE_URL}/models" | sed 's/},{/},\n{/g'
@@ -18,14 +19,23 @@ echo "Chat completion smoke test with locked free model '${MODEL}' ..."
 response="$(curl -fsS "${BASE_URL}/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ollama" \
-  -d "{\"model\":\"${MODEL}\",\"messages\":[{\"role\":\"user\",\"content\":\"Reply with exactly: ok\"}],\"stream\":false,\"max_tokens\":32}")"
+  -d "{\"model\":\"${MODEL}\",\"messages\":[{\"role\":\"user\",\"content\":\"Reply with exactly: ${EXPECT}\"}],\"stream\":false,\"max_tokens\":32}")"
 
 echo "${response}"
-if echo "${response}" | grep -qi '"content"'; then
-  echo
-  echo "OK — locked free Hermes is ready (not Grok)."
-else
-  echo
-  echo "Unexpected response — run ./scripts/lock-hermes.sh first." >&2
-  exit 1
-fi
+CONTENT_JSON="$response" EXPECT="$EXPECT" python3 - <<'PY'
+import json, os, sys
+expect = os.environ["EXPECT"].strip().lower()
+data = json.loads(os.environ["CONTENT_JSON"])
+content = (
+    data.get("choices", [{}])[0]
+    .get("message", {})
+    .get("content", "")
+    .strip()
+)
+print("assistant:", content)
+if content.lower() != expect:
+    print("error: expected %r (case-insensitive), got %r" % (expect, content), file=sys.stderr)
+    print("hint: run ./scripts/hermes-doctor.sh --fix", file=sys.stderr)
+    sys.exit(1)
+print("OK — locked free Hermes is ready (not Grok).")
+PY

@@ -37,6 +37,13 @@ Source: [Cursor Grok 4.5 docs](https://cursor.com/docs/models/grok-4-5).
 ./scripts/lock-hermes.sh
 ```
 
+Diagnose / autofix anytime:
+
+```bash
+./scripts/hermes-doctor.sh          # diagnose
+./scripts/hermes-doctor.sh --fix   # diagnose + autofix
+```
+
 This:
 - Reuses your already-downloaded free model (`openhermes`)
 - Creates/keeps the Cursor-safe alias `hermes`

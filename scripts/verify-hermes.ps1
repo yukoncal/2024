@@ -36,11 +36,12 @@ $response = Invoke-RestMethod -Method Post -Uri "$BaseUrl/chat/completions" `
 
 $response | ConvertTo-Json -Depth 8
 
-$content = $response.choices[0].message.content
-if ($content) {
+$content = ([string]$response.choices[0].message.content).Trim()
+$expect = if ($env:EXPECT) { $env:EXPECT } else { "ok" }
+if ($content.ToLower() -eq $expect.ToLower()) {
     Write-Host ""
     Write-Host "OK — locked free Hermes is ready (not Grok)."
 } else {
-    Write-Error "Unexpected response — run .\scripts\lock-hermes.ps1 first."
+    Write-Error "expected '$expect' (case-insensitive), got '$content'. Run .\scripts\hermes-doctor.ps1 -Fix"
     exit 1
 }
