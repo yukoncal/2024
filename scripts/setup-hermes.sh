@@ -117,21 +117,21 @@ cat <<EOF
 
 Hermes is ready (backed by free model: ${MODEL_SOURCE}).
 
-Open a local chat:
+Lock it as the free default (replaces paid Grok 4.5 High Fast):
+  ./scripts/lock-hermes.sh
+
+Open a local free chat:
   ./scripts/open-hermes.sh
 
-Next steps for Cursor:
+Next steps for Cursor Desktop (not Cloud Agents):
   1. Expose Ollama over public HTTPS (Cursor cannot call localhost):
        ./scripts/expose-for-cursor.sh
   2. In Cursor: Settings → Models
        - OpenAI API Key: ollama
        - Override OpenAI Base URL: https://YOUR-TUNNEL/v1
        - Add model: ${MODEL_ALIAS}
-  3. Pick ${MODEL_ALIAS} in the chat model picker (turn Auto off)
+  3. Turn Auto OFF and pick ${MODEL_ALIAS}
 
-Local sanity check:
-  ./scripts/verify-hermes.sh
-
-Override the source model anytime:
+Override the source model anytime (still free/local):
   MODEL_SOURCE=llama3.1:8b ./scripts/setup-hermes.sh
 EOF
