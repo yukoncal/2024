@@ -22,7 +22,7 @@ Write-Host ""
 Write-Host "Chat completion smoke test with locked free model '$Model' ..."
 $body = @{
     model      = $Model
-    messages   = @(@{ role = "user"; content = "Reply with exactly: ok" })
+    messages   = @(@{ role = "user"; content = "Reply with exactly: hermes-ok" })
     stream     = $false
     max_tokens = 32
 } | ConvertTo-Json -Depth 5
@@ -37,7 +37,7 @@ $response = Invoke-RestMethod -Method Post -Uri "$BaseUrl/chat/completions" `
 $response | ConvertTo-Json -Depth 8
 
 $content = ([string]$response.choices[0].message.content).Trim()
-$expect = if ($env:EXPECT) { $env:EXPECT } else { "ok" }
+$expect = if ($env:EXPECT) { $env:EXPECT } else { "hermes-ok" }
 if ($content.ToLower() -eq $expect.ToLower()) {
     Write-Host ""
     Write-Host "OK — locked free Hermes is ready (not Grok)."
