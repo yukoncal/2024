@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Verify the OpenAI-compatible Ollama endpoint for OpenHermes.
+# Verify the OpenAI-compatible Ollama endpoint for the Hermes alias.
 set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:11434/v1}"
-MODEL="${MODEL:-openhermes}"
+MODEL="${MODEL:-hermes}"
 
 echo "Listing models at ${BASE_URL}/models ..."
 curl -fsS "${BASE_URL}/models" | sed 's/},{/},\n{/g'
@@ -19,9 +19,9 @@ response="$(curl -fsS "${BASE_URL}/chat/completions" \
 echo "${response}"
 if echo "${response}" | grep -qi '"content"'; then
   echo
-  echo "OK — endpoint looks ready for Cursor (use a public HTTPS base URL in Cursor settings)."
+  echo "OK — Hermes endpoint looks ready for Cursor (use a public HTTPS base URL in Cursor settings)."
 else
   echo
-  echo "Unexpected response — check that the model is pulled: ollama list" >&2
+  echo "Unexpected response — run ./scripts/setup-hermes.sh first (uses your local free model)." >&2
   exit 1
 fi

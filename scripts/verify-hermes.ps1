@@ -1,9 +1,9 @@
-# Verify the OpenAI-compatible Ollama endpoint for OpenHermes.
+# Verify the OpenAI-compatible Ollama endpoint for the Hermes alias.
 # Run in PowerShell:  .\scripts\verify-hermes.ps1
 $ErrorActionPreference = "Stop"
 
 $BaseUrl = if ($env:BASE_URL) { $env:BASE_URL } else { "http://127.0.0.1:11434/v1" }
-$Model   = if ($env:MODEL)    { $env:MODEL }    else { "openhermes" }
+$Model   = if ($env:MODEL)    { $env:MODEL }    else { "hermes" }
 
 Write-Host "Listing models at $BaseUrl/models ..."
 $models = Invoke-RestMethod -Uri "$BaseUrl/models" -Headers @{ Authorization = "Bearer ollama" }
@@ -30,8 +30,8 @@ $response | ConvertTo-Json -Depth 8
 $content = $response.choices[0].message.content
 if ($content) {
     Write-Host ""
-    Write-Host "OK — endpoint looks ready for Cursor (use a public HTTPS base URL in Cursor settings)."
+    Write-Host "OK — Hermes endpoint looks ready for Cursor (use a public HTTPS base URL in Cursor settings)."
 } else {
-    Write-Error "Unexpected response — check that the model is pulled: ollama list"
+    Write-Error "Unexpected response — run .\scripts\setup-hermes.ps1 first (uses your local free model)."
     exit 1
 }

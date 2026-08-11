@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
-# Pull OpenHermes into Ollama so it's ready to use from Cursor.
-# OpenHermes has no "." in its name, so (unlike Qwen3.5) no Cursor-safe alias is needed.
+# Open Hermes using a free model you already downloaded in Ollama.
+# Prefers a local openhermes (or MODEL_SOURCE). Only pulls if nothing suitable is present.
+# Creates a short Cursor-safe alias: hermes
 set -euo pipefail
 
-MODEL_SOURCE="${MODEL_SOURCE:-openhermes}"
+MODEL_ALIAS="${MODEL_ALIAS:-hermes}"
+PREFERRED_SOURCE="${MODEL_SOURCE:-}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+MODELFILE="${ROOT}/ollama/Modelfile.hermes"
+# Free models we will reuse if already downloaded (first match wins when MODEL_SOURCE unset).
+CANDIDATES=(openhermes openhermes:latest llama3.1:8b mistral phi3)
 
 if ! command -v ollama >/dev/null 2>&1; then
   cat <<'EOF'
@@ -41,8 +47,65 @@ if ! curl -fsS "http://127.0.0.1:11434/api/tags" >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "Pulling ${MODEL_SOURCE} (about 4.1GB)..."
-ollama pull "${MODEL_SOURCE}"
+local_models="$(ollama list 2>/dev/null | awk 'NR>1 {print $1}')"
+
+model_is_local() {
+  local want="$1"
+  local name
+  while IFS= read -r name; do
+    [[ -z "$name" ]] && continue
+    if [[ "$name" == "$want" || "$name" == "${want}:latest" || "${name%%:*}" == "$want" ]]; then
+      echo "$name"
+      return 0
+    fi
+  done <<<"$local_models"
+  return 1
+}
+
+resolve_source() {
+  local hit
+  if [[ -n "$PREFERRED_SOURCE" ]]; then
+    if hit="$(model_is_local "$PREFERRED_SOURCE")"; then
+      echo "$hit"
+      return 0
+    fi
+    # Explicit override may not be local yet — caller will pull.
+    echo "$PREFERRED_SOURCE"
+    return 0
+  fi
+
+  local candidate
+  for candidate in "${CANDIDATES[@]}"; do
+    if hit="$(model_is_local "$candidate")"; then
+      echo "$hit"
+      return 0
+    fi
+  done
+
+  # Nothing free/local found — fall back to openhermes (will pull).
+  echo "openhermes"
+}
+
+MODEL_SOURCE="$(resolve_source)"
+
+if hit="$(model_is_local "$MODEL_SOURCE")"; then
+  MODEL_SOURCE="$hit"
+  echo "Using already-downloaded free model: ${MODEL_SOURCE}"
+else
+  echo "No matching local free model found. Pulling ${MODEL_SOURCE}..."
+  ollama pull "${MODEL_SOURCE}"
+  # Refresh list after pull so alias FROM matches the installed tag.
+  local_models="$(ollama list 2>/dev/null | awk 'NR>1 {print $1}')"
+  if hit="$(model_is_local "$MODEL_SOURCE")"; then
+    MODEL_SOURCE="$hit"
+  fi
+fi
+
+echo "Creating Cursor-safe alias '${MODEL_ALIAS}' from ${MODEL_SOURCE}..."
+tmp_modelfile="$(mktemp)"
+trap 'rm -f "${tmp_modelfile}"' EXIT
+sed "s|^FROM .*|FROM ${MODEL_SOURCE}|" "${MODELFILE}" >"${tmp_modelfile}"
+ollama create "${MODEL_ALIAS}" -f "${tmp_modelfile}"
 
 echo
 echo "Installed models:"
@@ -50,15 +113,23 @@ ollama list
 
 cat <<EOF
 
+Hermes is ready (backed by free model: ${MODEL_SOURCE}).
+
+Open a local chat:
+  ./scripts/open-hermes.sh
+
 Next steps for Cursor:
   1. Expose Ollama over public HTTPS (Cursor cannot call localhost):
        ./scripts/expose-for-cursor.sh
   2. In Cursor: Settings → Models
        - OpenAI API Key: ollama
        - Override OpenAI Base URL: https://YOUR-TUNNEL/v1
-       - Add model: ${MODEL_SOURCE}
-  3. Pick ${MODEL_SOURCE} in the chat model picker (turn Auto off)
+       - Add model: ${MODEL_ALIAS}
+  3. Pick ${MODEL_ALIAS} in the chat model picker (turn Auto off)
 
 Local sanity check:
   ./scripts/verify-hermes.sh
+
+Override the source model anytime:
+  MODEL_SOURCE=llama3.1:8b ./scripts/setup-hermes.sh
 EOF

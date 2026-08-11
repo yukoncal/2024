@@ -1,9 +1,14 @@
-# Pull OpenHermes into Ollama so it's ready to use from Cursor.
-# OpenHermes has no "." in its name, so (unlike Qwen3.5) no Cursor-safe alias is needed.
+# Open Hermes using a free model you already downloaded in Ollama.
+# Prefers a local openhermes (or MODEL_SOURCE). Only pulls if nothing suitable is present.
+# Creates a short Cursor-safe alias: hermes
 # Run in PowerShell:  .\scripts\setup-hermes.ps1
 $ErrorActionPreference = "Stop"
 
-$ModelSource = if ($env:MODEL_SOURCE) { $env:MODEL_SOURCE } else { "openhermes" }
+$ModelAlias = if ($env:MODEL_ALIAS) { $env:MODEL_ALIAS } else { "hermes" }
+$PreferredSource = if ($env:MODEL_SOURCE) { $env:MODEL_SOURCE } else { "" }
+$Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$Modelfile = Join-Path $Root "ollama\Modelfile.hermes"
+$Candidates = @("openhermes", "openhermes:latest", "llama3.1:8b", "mistral", "phi3")
 
 if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
     Write-Host @"
@@ -24,6 +29,27 @@ function Test-Ollama {
     }
 }
 
+function Get-LocalModels {
+    $lines = ollama list 2>$null
+    $names = @()
+    foreach ($line in $lines) {
+        if ($line -match '^\s*NAME\b') { continue }
+        $parts = ($line -split '\s+') | Where-Object { $_ -ne "" }
+        if ($parts.Count -ge 1) { $names += $parts[0] }
+    }
+    return $names
+}
+
+function Find-LocalModel([string]$Want, [string[]]$LocalModels) {
+    foreach ($name in $LocalModels) {
+        $base = ($name -split ':')[0]
+        if ($name -eq $Want -or $name -eq "${Want}:latest" -or $base -eq $Want) {
+            return $name
+        }
+    }
+    return $null
+}
+
 if (-not (Test-Ollama)) {
     Write-Host "Starting Ollama..."
     Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden
@@ -38,8 +64,40 @@ if (-not (Test-Ollama)) {
     exit 1
 }
 
-Write-Host "Pulling $ModelSource (about 4.1GB)..."
-ollama pull $ModelSource
+$localModels = @(Get-LocalModels)
+$ModelSource = $null
+
+if ($PreferredSource) {
+    $hit = Find-LocalModel $PreferredSource $localModels
+    if ($hit) { $ModelSource = $hit } else { $ModelSource = $PreferredSource }
+} else {
+    foreach ($candidate in $Candidates) {
+        $hit = Find-LocalModel $candidate $localModels
+        if ($hit) { $ModelSource = $hit; break }
+    }
+    if (-not $ModelSource) { $ModelSource = "openhermes" }
+}
+
+$localHit = Find-LocalModel $ModelSource $localModels
+if ($localHit) {
+    $ModelSource = $localHit
+    Write-Host "Using already-downloaded free model: $ModelSource"
+} else {
+    Write-Host "No matching local free model found. Pulling $ModelSource..."
+    ollama pull $ModelSource
+    $localModels = @(Get-LocalModels)
+    $localHit = Find-LocalModel $ModelSource $localModels
+    if ($localHit) { $ModelSource = $localHit }
+}
+
+$tmp = [System.IO.Path]::GetTempFileName()
+try {
+    (Get-Content $Modelfile) -replace '^FROM .*', "FROM $ModelSource" | Set-Content -Path $tmp -Encoding utf8
+    Write-Host "Creating Cursor-safe alias '$ModelAlias' from $ModelSource..."
+    ollama create $ModelAlias -f $tmp
+} finally {
+    Remove-Item -Force $tmp -ErrorAction SilentlyContinue
+}
 
 Write-Host ""
 Write-Host "Installed models:"
@@ -47,15 +105,23 @@ ollama list
 
 Write-Host @"
 
+Hermes is ready (backed by free model: $ModelSource).
+
+Open a local chat:
+  .\scripts\open-hermes.ps1
+
 Next steps for Cursor:
   1. Expose Ollama over public HTTPS (Cursor cannot call localhost):
        .\scripts\expose-for-cursor.ps1
   2. In Cursor: Settings → Models
        - OpenAI API Key: ollama
        - Override OpenAI Base URL: https://YOUR-TUNNEL/v1
-       - Add model: $ModelSource
-  3. Pick $ModelSource in the chat model picker (turn Auto off)
+       - Add model: $ModelAlias
+  3. Pick $ModelAlias in the chat model picker (turn Auto off)
 
 Local sanity check:
   .\scripts\verify-hermes.ps1
+
+Override the source model anytime:
+  `$env:MODEL_SOURCE='llama3.1:8b'; .\scripts\setup-hermes.ps1
 "@

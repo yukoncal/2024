@@ -63,17 +63,26 @@ python3 -m http.server 8080
 | `qwen3.5:9b` | Same weights; `:` / `.` can break Cursor model names |
 | `qwen3-vl:4b-instruct` | Vision |
 | `llama3.1:8b` | General chat |
-| `openhermes` | OpenHermes 2.5 (Mistral 7B); general chat/instruct |
+| `openhermes` | Free OpenHermes 2.5 (Mistral 7B); general chat/instruct |
+| `hermes` | Cursor-safe alias created by `setup-hermes.sh` from a free local model |
 
-## Connect OpenHermes
+## Open Hermes (free local model)
+
+Uses a free model you already downloaded in Ollama (prefers `openhermes`). Only pulls if nothing suitable is present.
 
 ```bash
-./scripts/setup-hermes.sh
-./scripts/verify-hermes.sh
+./scripts/setup-hermes.sh   # reuse local free model → create hermes alias
+./scripts/open-hermes.sh    # interactive local chat
+./scripts/verify-hermes.sh  # OpenAI-compatible smoke test
 ```
 
-Then in **Cursor Desktop** → **Settings** → **Models**, add custom model `openhermes` (no alias needed — the
-name has no `:` / `.` combination that trips up Cursor).
+Override the source model if you already have a different free one:
+
+```bash
+MODEL_SOURCE=llama3.1:8b ./scripts/setup-hermes.sh
+```
+
+Then in **Cursor Desktop** → **Settings** → **Models**, add custom model `hermes`.
 
 ## Verify the endpoint
 
