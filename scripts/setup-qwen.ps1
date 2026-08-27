@@ -1,11 +1,20 @@
-# Pull Qwen3.5 9B into Ollama and create a Cursor-safe alias.
+# Pull Qwen2.5-Coder 7B into Ollama and create a Cursor-safe alias.
+# Cursor rejects model names with ":" or "." (e.g. qwen2.5-coder:latest),
+# which surfaces as: "The model you chose is not available."
 # Run in PowerShell:  .\scripts\setup-qwen.ps1
 $ErrorActionPreference = "Stop"
 
-$ModelSource = if ($env:MODEL_SOURCE) { $env:MODEL_SOURCE } else { "qwen3.5:9b" }
-$ModelAlias  = if ($env:MODEL_ALIAS)  { $env:MODEL_ALIAS }  else { "qwen359b" }
+$ModelSource = if ($env:MODEL_SOURCE) { $env:MODEL_SOURCE } else { "qwen2.5-coder:7b" }
+$ModelAlias  = if ($env:MODEL_ALIAS)  { $env:MODEL_ALIAS }  else { "qwen25" }
 $Root        = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$Modelfile   = Join-Path $Root "ollama\Modelfile"
+
+if ($ModelSource -eq "qwen2.5-coder:7b" -and (Test-Path (Join-Path $Root "ollama\Modelfile-qwen25"))) {
+    $Modelfile = Join-Path $Root "ollama\Modelfile-qwen25"
+} elseif ($ModelSource -eq "qwen2.5-coder:7b" -and (Test-Path (Join-Path $Root "ollama\Modelfile-qwen25-7b-coder"))) {
+    $Modelfile = Join-Path $Root "ollama\Modelfile-qwen25-7b-coder"
+} else {
+    $Modelfile = Join-Path $Root "ollama\Modelfile"
+}
 
 if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
     Write-Host @"
@@ -40,7 +49,7 @@ if (-not (Test-Ollama)) {
     exit 1
 }
 
-Write-Host "Pulling $ModelSource (about 6.6GB)..."
+Write-Host "Pulling $ModelSource..."
 ollama pull $ModelSource
 
 $tmp = [System.IO.Path]::GetTempFileName()
@@ -61,12 +70,14 @@ Write-Host @"
 Next steps for Cursor:
   1. Expose Ollama over public HTTPS (Cursor cannot call localhost):
        .\scripts\expose-for-cursor.ps1
-  2. In Cursor: Settings → Models
+  2. In Cursor Desktop: Settings → Models
        - OpenAI API Key: ollama
        - Override OpenAI Base URL: https://YOUR-TUNNEL/v1
        - Add model: $ModelAlias
-  3. Pick $ModelAlias in the chat model picker (turn Auto off)
+       - Do NOT add qwen2.5-coder:latest (Cursor rejects ":" / ".")
+  3. In the chat model picker, turn Auto off and select $ModelAlias
+  4. Send: Reply with exactly: ollama-ok
 
 Local sanity check:
-  .\scripts\verify-qwen.ps1
+  `$env:MODEL_ALIAS='$ModelAlias'; .\scripts\verify-qwen.ps1
 "@

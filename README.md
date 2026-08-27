@@ -7,39 +7,76 @@
 ---
 
 This repository contains two main projects:
-1. **Ollama to Cursor Connection**: Scripts and docs to use local models (like Qwen3.5 9B) in Cursor Desktop.
+1. **Ollama to Cursor Connection**: Scripts and docs to use local models (like Qwen2.5-Coder 7B) in Cursor Desktop.
 2. **YouTube Video Production Pipeline**: A Mission Control hub for managing a three-channel video production pipeline.
 
 ---
 
 # Connect Ollama to Cursor
 
-Your Ollama OpenAI-compatible API is live at:
+## Fix qwen2.5 in Cursor (do this)
 
-```text
-https://brought-passage-trapeze.ngrok-free.dev/v1
+`qwen2.5-coder:latest` **does not work** in Cursor (`.` and `:` are rejected → “The model you chose is not available”).
+
+Use the safe name **`qwen25`** instead.
+
+### On your PC (PowerShell or Terminal in this repo)
+
+```powershell
+.\scripts\setup-qwen.ps1
+.\scripts\expose-for-cursor.ps1
 ```
 
-Verified: Ollama chat completions working (`qwen2.5-coder:latest` → `ollama-ok`).
+macOS/Linux:
 
-## Cursor Settings → Models (Desktop)
+```bash
+./scripts/setup-qwen.sh
+./scripts/expose-for-cursor.sh
+```
 
-Cloud Agent tabs keep showing the hosted Cursor model (e.g. Grok). Wire Ollama in **Cursor Desktop**:
+Copy the HTTPS URL the tunnel prints, then add `/v1`.
 
-1. Open **Cursor Desktop** → **Settings** → **Models**
-2. **OpenAI API Key:** `ollama` (any non-empty string)
-3. **Override OpenAI Base URL:** `https://brought-passage-trapeze.ngrok-free.dev/v1`
-4. **Add custom model:** `qwen2.5-coder:latest` (or `qwen359b`)
-5. In the chat model picker, turn **Auto** off and select that model
-6. Send: `Reply with exactly: ollama-ok`
+### Paste into Cursor Desktop → Settings → Models
 
-Do **not** append `/chat/completions` — Cursor adds that path itself.
-
-| Setting | Value |
+| Setting | Exact value |
 | --- | --- |
 | OpenAI API Key | `ollama` |
-| Override OpenAI Base URL | `https://brought-passage-trapeze.ngrok-free.dev/v1` |
-| Add model | `qwen2.5-coder:latest` |
+| Override OpenAI Base URL | `https://YOUR-TUNNEL/v1` |
+| Add model | `qwen25` |
+
+Then:
+
+1. Turn **Auto** off in the chat model picker  
+2. Select **`qwen25`** (not `qwen2.5-coder:latest`)  
+3. Send: `Reply with exactly: ollama-ok`
+
+Do **not** use these names in Cursor: `qwen2.5-coder:latest`, `qwen2.5-coder:7b`, `qwen25:latest`.
+
+Prefer **cloudflared** over free ngrok. Keep the tunnel running while you chat.
+
+---
+
+## Available models
+
+| Model id | Notes |
+| --- | --- |
+| `qwen25` | **Use this in Cursor** — alias for Qwen2.5-Coder 7B |
+| `qwen25-7b-coder` | Same weights, longer alias |
+| `qwen2.5-coder:7b` | Ollama name only — do not use in Cursor |
+| `qwen2.5-coder:latest` | Breaks Cursor model picker |
+| `qwen359b` | Optional Qwen3.5 9B (`MODEL_SOURCE=qwen3.5:9b MODEL_ALIAS=qwen359b ./scripts/setup-qwen.sh`) |
+
+## Verify
+
+```bash
+MODEL_ALIAS=qwen25 ./scripts/verify-qwen.sh
+```
+
+```bash
+OLLAMA_BASE_URL='https://YOUR-TUNNEL/v1' \
+OLLAMA_MODEL='qwen25' \
+./scripts/verify-endpoint.sh
+```
 
 ## YouTube Video Production Pipeline
 
@@ -49,43 +86,11 @@ A static site hub for managing production across three channels: **Drone Technol
 - **Dashboard**: `mission-control.html`
 - **Phases**: `phases/` (9 phases with checklists and scoring)
 
-To view the pipeline hub:
 ```bash
 python3 -m http.server 8080
 ```
 
-## Available models
-
-| Model id | Notes |
-| --- | --- |
-| `qwen2.5-coder:latest` | Coding-focused (default smoke-test target) |
-| `qwen359b` | Cursor-safe alias for Qwen3.5 9B |
-| `qwen3.5:9b` | Same weights; `:` / `.` can break Cursor model names |
-| `qwen3-vl:4b-instruct` | Vision |
-| `llama3.1:8b` | General chat |
-
-## Verify the endpoint
-
-```bash
-./scripts/verify-endpoint.sh
-```
-
-Overrides:
-
-```bash
-OLLAMA_BASE_URL='https://brought-passage-trapeze.ngrok-free.dev/v1' \
-OLLAMA_MODEL='qwen2.5-coder:latest' \
-./scripts/verify-endpoint.sh
-```
-
-The script lists `/v1/models`, runs one `/v1/chat/completions`, and exits non-zero unless the assistant reply is exactly `ollama-ok`.
-
 ## Notes
 
-- Cursor cannot call `localhost` for custom OpenAI endpoints (requests go through Cursor’s backend), so this public HTTPS tunnel is required.
-- **Important:** If using a free **ngrok** account, you must bypass the ngrok browser warning for Cursor to reach your endpoint. Cursor's backend does not send the required `ngrok-skip-browser-warning` header.
-- **Fix for ngrok:** Consider using **cloudflared** instead, or use a custom domain with ngrok if possible. If you must use ngrok, the Agent and Chat may fail with a "browser warning" error.
-- Keep the ngrok tunnel running while using the model.
-- Free ngrok URLs change when the tunnel restarts — update the Base URL if the host changes.
-- Cloud Agents cannot switch your desktop model picker; configure this in **Cursor desktop**.
-- **Model Names:** If Cursor shows "Model not found", ensure you are using a name without special characters like `:` or `.`. Use the alias `qwen359b` instead of `qwen3.5:9b`.
+- Cursor cannot call `localhost` for custom OpenAI endpoints — you need a public HTTPS tunnel.
+- Cloud Agents cannot change your desktop model picker; set **`qwen25`** in **Cursor Desktop**.

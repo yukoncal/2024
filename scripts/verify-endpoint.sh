@@ -3,9 +3,15 @@
 # Lists models, runs one chat completion, exits non-zero on failure.
 set -euo pipefail
 
-BASE_URL="${OLLAMA_BASE_URL:-https://brought-passage-trapeze.ngrok-free.dev/v1}"
-MODEL="${OLLAMA_MODEL:-qwen2.5-coder:latest}"
+BASE_URL="${OLLAMA_BASE_URL:-}"
+MODEL="${OLLAMA_MODEL:-qwen25}"
 EXPECT="${OLLAMA_EXPECT:-ollama-ok}"
+
+if [[ -z "$BASE_URL" ]]; then
+  echo "error: set OLLAMA_BASE_URL to your live tunnel ending in /v1" >&2
+  echo "example: OLLAMA_BASE_URL='https://YOUR-SUBDOMAIN.trycloudflare.com/v1' ./scripts/verify-endpoint.sh" >&2
+  exit 1
+fi
 
 if ! command -v curl >/dev/null 2>&1; then
   echo "error: missing required command: curl" >&2
