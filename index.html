@@ -41,6 +41,27 @@
     </section>
 
     <section>
+      <div class="dashboard-grid" id="hub-metrics">
+        <div class="metric-card">
+          <div class="metric-value" id="hub-channels-active">3</div>
+          <div class="metric-label">Active Channels</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="hub-phases-pass">0</div>
+          <div class="metric-label">Phases Passing (all channels)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="hub-phases-total">27</div>
+          <div class="metric-label">Total Phase Slots</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">6%</div>
+          <div class="metric-label">CTR Pass Threshold</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
       <h3 class="section-title">Focus Channels</h3>
       <div class="channel-grid">
         <article class="channel-card drone">
@@ -51,6 +72,11 @@
             <div><span>Target Length</span>2–3 min</div>
             <div><span>CTR Goal</span>≥ 6%</div>
             <div><span>Avatar</span>Sentinel 1</div>
+          </div>
+          <div class="channel-progress" data-channel-progress="drone">
+            <span class="channel-phase-count text-small">0 / 9 passing</span>
+            <span class="channel-avg-score text-small text-muted">0% avg</span>
+            <span class="grade-badge grade-pending channel-grade-badge">PENDING</span>
           </div>
           <div class="channel-links">
             <a href="channels/drone-technology.html" class="btn btn-primary">Channel Hub</a>
@@ -67,6 +93,11 @@
             <div><span>CTR Goal</span>≥ 6%</div>
             <div><span>Avatar</span>Sentinel 1</div>
           </div>
+          <div class="channel-progress" data-channel-progress="military">
+            <span class="channel-phase-count text-small">0 / 9 passing</span>
+            <span class="channel-avg-score text-small text-muted">0% avg</span>
+            <span class="grade-badge grade-pending channel-grade-badge">PENDING</span>
+          </div>
           <div class="channel-links">
             <a href="channels/military-bases.html" class="btn btn-primary">Channel Hub</a>
             <a href="phases/01-trends.html?channel=military" class="btn">Start Pipeline</a>
@@ -82,6 +113,11 @@
             <div><span>CTR Goal</span>≥ 6%</div>
             <div><span>Avatar</span>Sentinel 1</div>
           </div>
+          <div class="channel-progress" data-channel-progress="family">
+            <span class="channel-phase-count text-small">0 / 9 passing</span>
+            <span class="channel-avg-score text-small text-muted">0% avg</span>
+            <span class="grade-badge grade-pending channel-grade-badge">PENDING</span>
+          </div>
           <div class="channel-links">
             <a href="channels/family.html" class="btn btn-primary">Channel Hub</a>
             <a href="phases/01-trends.html?channel=family" class="btn">Start Pipeline</a>
@@ -90,7 +126,7 @@
       </div>
     </section>
 
-    <section>
+    <section id="section-1">
       <h3 class="section-title">Section 1 — Production Pipeline</h3>
       <p class="text-muted mb-2">Each phase has its own page with checklist, score system, feedback, and continuous AI prompts.</p>
       <div class="pipeline-grid">
@@ -109,7 +145,7 @@
           <h4>Automation & Drafts</h4>
           <p>Initial drafts, script drafts, screenshots every 3–5 seconds for B-roll assembly.</p>
           <div class="phase-status">
-            <span class="grade-badge grade-pending">PENDING</span>
+            <span class="grade-badge grade-pending" data-phase="phase-02-automation">PENDING</span>
             <a href="phases/02-automation.html" class="btn">Open →</a>
           </div>
         </div>
@@ -119,7 +155,7 @@
           <h4>Avatar Narrative</h4>
           <p>Faceless avatar — Sentinel 1 Tactical Operations Officer voiceover and narrative flow.</p>
           <div class="phase-status">
-            <span class="grade-badge grade-pending">PENDING</span>
+            <span class="grade-badge grade-pending" data-phase="phase-03-avatar">PENDING</span>
             <a href="phases/03-avatar.html" class="btn">Open →</a>
           </div>
         </div>
@@ -129,7 +165,7 @@
           <h4>Strategy Session</h4>
           <p>Current war planning, cost today vs history, warriors strategy, success metrics.</p>
           <div class="phase-status">
-            <span class="grade-badge grade-pending">PENDING</span>
+            <span class="grade-badge grade-pending" data-phase="phase-04-strategy">PENDING</span>
             <a href="phases/04-strategy.html" class="btn">Open →</a>
           </div>
         </div>
@@ -139,7 +175,7 @@
           <h4>AI Review & Testing</h4>
           <p>Revised and tested via AI automation. Human-in-loop validation before submit.</p>
           <div class="phase-status">
-            <span class="grade-badge grade-pending">PENDING</span>
+            <span class="grade-badge grade-pending" data-phase="phase-05-ai-review">PENDING</span>
             <a href="phases/05-ai-review.html" class="btn">Open →</a>
           </div>
         </div>
@@ -149,7 +185,7 @@
           <h4>Mission Control Submit</h4>
           <p>Final short video 2–3 min (under 3 min). Submitted to Mission Control for approval.</p>
           <div class="phase-status">
-            <span class="grade-badge grade-pending">PENDING</span>
+            <span class="grade-badge grade-pending" data-phase="phase-06-mission-control">PENDING</span>
             <a href="phases/06-mission-control.html" class="btn">Open →</a>
           </div>
         </div>
@@ -159,7 +195,7 @@
           <h4>Analytics & Scoring</h4>
           <p>YouTube analytics, AI trigger validation, CTR score system, AI final review.</p>
           <div class="phase-status">
-            <span class="grade-badge grade-pending">PENDING</span>
+            <span class="grade-badge grade-pending" data-phase="phase-07-analytics">PENDING</span>
             <a href="phases/07-analytics.html" class="btn">Open →</a>
           </div>
         </div>
@@ -169,7 +205,7 @@
           <h4>Week One Evaluation</h4>
           <p>Evaluate week one. Passing CTR grade. Low scores → edit video and resubmit.</p>
           <div class="phase-status">
-            <span class="grade-badge grade-pending">PENDING</span>
+            <span class="grade-badge grade-pending" data-phase="phase-08-week-one">PENDING</span>
             <a href="phases/08-week-one.html" class="btn">Open →</a>
           </div>
         </div>
@@ -179,7 +215,7 @@
           <h4>Pipeline Tracking</h4>
           <p>More views, reply to comments, continuous prompts tweeted. Full pipeline tracking.</p>
           <div class="phase-status">
-            <span class="grade-badge grade-pending">PENDING</span>
+            <span class="grade-badge grade-pending" data-phase="phase-09-tracking">PENDING</span>
             <a href="phases/09-tracking.html" class="btn">Open →</a>
           </div>
         </div>
