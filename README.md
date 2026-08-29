@@ -66,6 +66,53 @@ Prefer **cloudflared** over free ngrok. Keep the tunnel running while you chat.
 | `qwen2.5-coder:latest` | Breaks Cursor model picker |
 | `qwen359b` | Optional Qwen3.5 9B (`MODEL_SOURCE=qwen3.5:9b MODEL_ALIAS=qwen359b ./scripts/setup-qwen.sh`) |
 
+## Troubleshoot "Local models not showing"
+
+If you've completed setup but models still don't appear in Cursor's model picker:
+
+```bash
+./scripts/troubleshoot-cursor-models.sh
+```
+
+This script checks:
+- ✓ Ollama is installed and running
+- ✓ Models are aliased with Cursor-safe names (no "." or ":")
+- ✓ Tunnel tool (cloudflared or ngrok) is available
+- ✓ Correct Cursor Desktop settings for API key, base URL, and model name
+
+### Quick checklist if models aren't showing
+
+1. **Is Ollama running?**
+   ```bash
+   curl http://127.0.0.1:11434/api/tags
+   ```
+   If this fails, run: `ollama serve`
+
+2. **Is the tunnel running?**
+   Keep `./scripts/expose-for-cursor.sh` running in another terminal while chatting.
+
+3. **Are Cursor settings correct?**
+   - Settings → Models
+   - **API Key**: `ollama` (not your OpenAI key)
+   - **Base URL**: `https://YOUR-TUNNEL/v1` (copy from tunnel output, add `/v1`)
+   - **Model name**: `qwen25` (no dots, no colons)
+   - Turn **Auto** OFF in the chat model picker
+
+4. **Is the model aliased correctly in Ollama?**
+   ```bash
+   ollama list
+   ```
+   You should see `qwen25` (not `qwen2.5-coder:latest`).
+
+### Common error messages
+
+| Error | Cause | Fix |
+| --- | --- | --- |
+| "The model you chose is not available" | Model name has "." or ":" | Use alias like `qwen25` instead |
+| "Connection refused" or "Timeout" | Tunnel not running or URL wrong | Keep `./scripts/expose-for-cursor.sh` running; verify URL in Cursor Settings |
+| Ollama not reachable at localhost:11434 | Ollama daemon not running | Run `ollama serve` |
+| Model appears but doesn't respond | Settings are wrong | Check API key (`ollama`), base URL (ends in `/v1`), and model name (`qwen25`) |
+
 ## Verify
 
 ```bash
