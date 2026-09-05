@@ -1,8 +1,10 @@
 # 2024 Project Hub
 
-> 🚀 **Quick Access**: [Open Local Dashboard](http://localhost:8080) (Ensure server is running first)
+> 🚀 **Quick Access**: [Open Local Dashboard](https://localhost:8080) (Ensure server is running first)
 > 
 > **To start the server**: Run `./start-dashboard.sh` or `start-dashboard.bat`
+>
+> ⚠️ **Using Safari?** If you see "Navigation failed because the request was for an HTTP URL with HTTPS-Only enabled", see [SAFARI_HTTPS_ONLY_FIX.md](./SAFARI_HTTPS_ONLY_FIX.md)
 
 ---
 
@@ -139,5 +141,6 @@ python3 -m http.server 8080
 
 ## Notes
 
-- Cursor cannot call `localhost` for custom OpenAI endpoints — you need a public HTTPS tunnel.
-- Cloud Agents cannot change your desktop model picker; set **`qwen25`** in **Cursor Desktop**.
+- **Safari HTTPS-Only mode**: The dashboard now runs on HTTPS by default to work with Safari's HTTPS-Only mode. See [SAFARI_HTTPS_ONLY_FIX.md](./SAFARI_HTTPS_ONLY_FIX.md) for details and alternatives.
+- **Cursor and localhost**: Cursor cannot call `localhost` for custom OpenAI endpoints — you need a public HTTPS tunnel (use `expose-for-cursor.sh` for Ollama).
+- **Cloud Agents cannot change desktop settings**: Cursor Cloud Agents cannot change your desktop model picker; set **`qwen25`** in **Cursor Desktop** manually.
