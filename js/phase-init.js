@@ -4,11 +4,17 @@
 function initPhase(config) {
   const { id, checklist, criteria, prompts, passThreshold = 70 } = config;
 
-  // Save config for dashboard use
-  const configKey = "yt-pipeline-config-" + id;
-  localStorage.setItem(configKey, JSON.stringify({ criteria, passThreshold }));
-
   document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const channel = params.get("channel");
+
+    setActiveChannel(channel);
+
+    localStorage.setItem(
+      configStorageKey(id),
+      JSON.stringify({ criteria, passThreshold })
+    );
+
     initChecklist(id, checklist);
     initScoring(id, criteria);
     initFeedback(id);
@@ -17,8 +23,6 @@ function initPhase(config) {
     const totalEl = document.getElementById("total-score");
     if (totalEl) totalEl.dataset.pass = passThreshold;
 
-    const params = new URLSearchParams(window.location.search);
-    const channel = params.get("channel");
     if (channel) {
       const badge = document.getElementById("channel-badge");
       if (badge) {
@@ -30,7 +34,7 @@ function initPhase(config) {
 
     const prev = document.getElementById("nav-prev");
     const next = document.getElementById("nav-next");
-    if (prev && config.prev) prev.href = config.prev;
-    if (next && config.next) next.href = config.next;
+    if (prev && config.prev) prev.href = appendChannelParam(config.prev, channel);
+    if (next && config.next) next.href = appendChannelParam(config.next, channel);
   });
 }
