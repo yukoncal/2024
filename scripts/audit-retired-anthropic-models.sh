@@ -17,10 +17,13 @@ echo ""
 
 FOUND=0
 
+# Writes through a temp file instead of `sed -i`, whose syntax differs
+# between GNU (Linux) and BSD (macOS) sed.
 rewrite_file() {
-  local f="$1"
+  local f="$1" tmp
   cp "$f" "$f.bak"
-  sed -i.tmp \
+  tmp="$(mktemp)"
+  sed \
     -e 's|anthropic/claude-3-5-sonnet-20241022|anthropic/claude-sonnet-4.6|g' \
     -e 's|anthropic/claude-3-5-sonnet-20240620|anthropic/claude-sonnet-4.6|g' \
     -e 's|anthropic/claude-3-7-sonnet-20250219|anthropic/claude-sonnet-4.6|g' \
@@ -29,8 +32,9 @@ rewrite_file() {
     -e 's|claude-3-5-sonnet-20240620|claude-sonnet-4-6|g' \
     -e 's|claude-3-7-sonnet-20250219|claude-sonnet-4-6|g' \
     -e 's|claude-3-5-haiku-20241022|claude-haiku-4-5-20251001|g' \
-    "$f"
-  rm -f "$f.tmp"
+    "$f" > "$tmp"
+  cat "$tmp" > "$f"
+  rm -f "$tmp"
   echo "    rewritten (backup: $f.bak)"
 }
 
@@ -47,14 +51,15 @@ search_file() {
 }
 
 HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
-search_file "$HERMES_HOME/config.yaml"
-search_file "$HERMES_HOME/cli-config.yaml"
-
-if [[ -d "$HERMES_HOME/profiles" ]]; then
-  while IFS= read -r -d '' f; do
-    search_file "$f"
-  done < <(find "$HERMES_HOME/profiles" -name 'config.yaml' -print0 2>/dev/null || true)
-fi
+for dir in "$HERMES_HOME" "$HOME/.config/hermes"; do
+  search_file "$dir/config.yaml"
+  search_file "$dir/cli-config.yaml"
+  if [[ -d "$dir/profiles" ]]; then
+    while IFS= read -r -d '' f; do
+      search_file "$f"
+    done < <(find "$dir/profiles" -name 'config.yaml' -print0 2>/dev/null || true)
+  fi
+done
 
 for f in .env .env.local cli-config.yaml; do
   search_file "$f"

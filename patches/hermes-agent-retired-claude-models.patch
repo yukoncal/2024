@@ -1,7 +1,7 @@
 From 79dc10cec998fd057f1b4236c8ecb885d15473cb Mon Sep 17 00:00:00 2001
 From: Cursor Agent <cursoragent@cursor.com>
 Date: Sat, 26 Sep 2026 19:25:06 +0000
-Subject: [PATCH 1/2] Auto-upgrade retired Claude 3.5 Sonnet API model IDs
+Subject: [PATCH 1/3] Auto-upgrade retired Claude 3.5 Sonnet API model IDs
 
 ---
  agent/retired_anthropic_models.py             | 72 +++++++++++++++++++
@@ -295,7 +295,7 @@ index 0000000..b41f77b
 From 629b2750d4209c0d1c9062c4637060168557e2b9 Mon Sep 17 00:00:00 2001
 From: Cursor Agent <cursoragent@cursor.com>
 Date: Sat, 26 Sep 2026 23:09:48 +0000
-Subject: [PATCH 2/2] Rewrite retired Claude ids on native Anthropic requests;
+Subject: [PATCH 2/3] Rewrite retired Claude ids on native Anthropic requests;
  add --fix to audit script
 
 ---
@@ -457,6 +457,75 @@ index 98de82f..b8e79ba 100644
 +def test_third_party_endpoint_is_left_alone():
 +    kwargs = _kwargs("claude-3-5-sonnet-20241022", "https://proxy.example.com/v1")
 +    assert kwargs["model"] == "claude-3-5-sonnet-20241022"
+-- 
+2.43.0
+
+
+From 3685a354f0b1c69488662996f7503a4b3f828dd4 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 26 Sep 2026 23:15:32 +0000
+Subject: [PATCH 3/3] Make audit script portable across GNU and BSD sed
+
+---
+ scripts/audit-retired-anthropic-models.sh | 29 +++++++++++++----------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/scripts/audit-retired-anthropic-models.sh b/scripts/audit-retired-anthropic-models.sh
+index d31588d..e252390 100755
+--- a/scripts/audit-retired-anthropic-models.sh
++++ b/scripts/audit-retired-anthropic-models.sh
+@@ -17,10 +17,13 @@ echo ""
+ 
+ FOUND=0
+ 
++# Writes through a temp file instead of `sed -i`, whose syntax differs
++# between GNU (Linux) and BSD (macOS) sed.
+ rewrite_file() {
+-  local f="$1"
++  local f="$1" tmp
+   cp "$f" "$f.bak"
+-  sed -i.tmp \
++  tmp="$(mktemp)"
++  sed \
+     -e 's|anthropic/claude-3-5-sonnet-20241022|anthropic/claude-sonnet-4.6|g' \
+     -e 's|anthropic/claude-3-5-sonnet-20240620|anthropic/claude-sonnet-4.6|g' \
+     -e 's|anthropic/claude-3-7-sonnet-20250219|anthropic/claude-sonnet-4.6|g' \
+@@ -29,8 +32,9 @@ rewrite_file() {
+     -e 's|claude-3-5-sonnet-20240620|claude-sonnet-4-6|g' \
+     -e 's|claude-3-7-sonnet-20250219|claude-sonnet-4-6|g' \
+     -e 's|claude-3-5-haiku-20241022|claude-haiku-4-5-20251001|g' \
+-    "$f"
+-  rm -f "$f.tmp"
++    "$f" > "$tmp"
++  cat "$tmp" > "$f"
++  rm -f "$tmp"
+   echo "    rewritten (backup: $f.bak)"
+ }
+ 
+@@ -47,14 +51,15 @@ search_file() {
+ }
+ 
+ HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
+-search_file "$HERMES_HOME/config.yaml"
+-search_file "$HERMES_HOME/cli-config.yaml"
+-
+-if [[ -d "$HERMES_HOME/profiles" ]]; then
+-  while IFS= read -r -d '' f; do
+-    search_file "$f"
+-  done < <(find "$HERMES_HOME/profiles" -name 'config.yaml' -print0 2>/dev/null || true)
+-fi
++for dir in "$HERMES_HOME" "$HOME/.config/hermes"; do
++  search_file "$dir/config.yaml"
++  search_file "$dir/cli-config.yaml"
++  if [[ -d "$dir/profiles" ]]; then
++    while IFS= read -r -d '' f; do
++      search_file "$f"
++    done < <(find "$dir/profiles" -name 'config.yaml' -print0 2>/dev/null || true)
++  fi
++done
+ 
+ for f in .env .env.local cli-config.yaml; do
+   search_file "$f"
 -- 
 2.43.0
 

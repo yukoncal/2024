@@ -18,12 +18,23 @@ Official table: [Anthropic model deprecations](https://platform.claude.com/docs/
 
 ## 1. Find where the old ID is set
 
-From this repo:
+From a clone of this repo:
 
 ```bash
 ./scripts/audit-retired-anthropic-models.sh          # report only
 ./scripts/audit-retired-anthropic-models.sh --fix    # rewrite Hermes config in place (.bak kept)
 ```
+
+Without a clone (downloads the same script to `~/hermes-fix`):
+
+```bash
+mkdir -p ~/hermes-fix && cd ~/hermes-fix
+curl -fsSLO https://raw.githubusercontent.com/yukoncal/2024/main/scripts/audit-retired-anthropic-models.sh
+chmod +x audit-retired-anthropic-models.sh
+./audit-retired-anthropic-models.sh --fix
+```
+
+The script checks `~/.hermes` and `~/.config/hermes` (`config.yaml`, `cli-config.yaml`, `profiles/*/config.yaml`), plus `.env` files in the current directory. Set `HERMES_HOME` if your Hermes data lives elsewhere.
 
 Typical locations:
 
