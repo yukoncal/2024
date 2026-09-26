@@ -15,7 +15,8 @@ echo "  claude-3-5-sonnet-20241022 / -20240620 / claude-3-7-sonnet-20250219 → 
 echo "  claude-3-5-haiku-20241022 → claude-haiku-4-5-20251001"
 echo ""
 
-FOUND=0
+CONFIG_FOUND=0
+REPO_FOUND=0
 
 # Writes through a temp file instead of `sed -i`, whose syntax differs
 # between GNU (Linux) and BSD (macOS) sed.
@@ -43,7 +44,7 @@ search_file() {
   if [[ -f "$f" ]] && grep -qE "$PATTERN" "$f" 2>/dev/null; then
     echo "  $f"
     grep -nE "$PATTERN" "$f" || true
-    FOUND=1
+    CONFIG_FOUND=1
     if [[ "$FIX" -eq 1 ]]; then
       rewrite_file "$f"
     fi
@@ -71,25 +72,25 @@ REPO_EXCLUDES=(
   --glob '!.git'
   --glob '!patches/*'
   --glob '!docs/ANTHROPIC_RETIRED_MODELS.md'
-  --glob '!scripts/audit-retired-anthropic-models.sh'
+  --glob '!**/audit-retired-anthropic-models.sh'
   --glob '!README.md'
 )
 if command -v rg >/dev/null 2>&1 && rg -q "$PATTERN" . "${REPO_EXCLUDES[@]}" 2>/dev/null; then
   echo "  (this repository — review manually)"
   rg -n "$PATTERN" . "${REPO_EXCLUDES[@]}" 2>/dev/null || true
-  FOUND=1
+  REPO_FOUND=1
 fi
 
-if [[ "$FOUND" -eq 0 ]]; then
+if [[ "$CONFIG_FOUND" -eq 0 && "$REPO_FOUND" -eq 0 ]]; then
   echo "No retired model IDs found in Hermes config paths."
   echo ""
   echo "Set the active model explicitly if needed:"
   echo "  hermes config set model.default claude-sonnet-4-6     # provider: anthropic"
   echo "  hermes config set model.default anthropic/claude-sonnet-4.6   # OpenRouter"
-elif [[ "$FIX" -eq 1 ]]; then
+elif [[ "$FIX" -eq 1 && "$CONFIG_FOUND" -eq 1 ]]; then
   echo ""
   echo "Done. Restart Hermes (CLI session, gateway, cron) to pick up the change."
-else
+elif [[ "$CONFIG_FOUND" -eq 1 ]]; then
   echo ""
   echo "Re-run with --fix to rewrite these in place, or edit manually."
 fi
