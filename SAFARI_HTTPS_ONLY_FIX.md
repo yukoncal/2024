@@ -44,8 +44,8 @@ The updated `start-dashboard.sh` now supports HTTPS by default.
 
 - Generates a self-signed SSL certificate for localhost (done once, then reused)
 - Starts a Python HTTPS server on port 8080
-- Certificate is stored in `./.certs/` (automatically created)
-- Future runs reuse the same certificate
+- Certificate is stored in `./.certs/` (created on your machine the first time you run the script; not checked into git)
+- Future runs reuse the same local certificate
 
 ---
 
