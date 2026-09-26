@@ -33,9 +33,10 @@ for f in .env .env.local; do
 done
 
 if command -v rg >/dev/null 2>&1; then
-  if rg -q "$PATTERN" . --glob '!.git' 2>/dev/null; then
+  RG_GLOBS=(--glob '!.git' --glob '!README.md' --glob '!docs/ANTHROPIC_RETIRED_MODELS.md' --glob '!scripts/audit-retired-anthropic-models.sh')
+  if rg -q "$PATTERN" . "${RG_GLOBS[@]}" 2>/dev/null; then
     echo "  (this repository)"
-    rg -n "$PATTERN" . --glob '!.git' 2>/dev/null || true
+    rg -n "$PATTERN" . "${RG_GLOBS[@]}" 2>/dev/null || true
     FOUND=1
   fi
 fi
