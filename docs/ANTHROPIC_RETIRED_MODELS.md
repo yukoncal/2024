@@ -21,8 +21,8 @@ Official table: [Anthropic model deprecations](https://platform.claude.com/docs/
 From this repo:
 
 ```bash
-./scripts/audit-retired-anthropic-models.sh
-rg 'claude-3-5-sonnet-20241022' ~ .
+./scripts/audit-retired-anthropic-models.sh          # report only
+./scripts/audit-retired-anthropic-models.sh --fix    # rewrite Hermes config in place (.bak kept)
 ```
 
 Typical locations:
@@ -62,6 +62,23 @@ curl -s https://api.anthropic.com/v1/messages \
 
 You should get a normal response, not `not_found_error`.
 
-## Hermes Agent code fix
+## 4. Hermes Agent code fix (patch included)
 
-The **[yukoncal/hermes-agent](https://github.com/yukoncal/hermes-agent)** repo includes an auto-upgrade for known retired IDs at request time (branch `cursor/fix-retired-claude-35-sonnet-b7c0`). Merge or cherry-pick that change so old configs stop hitting the API with retired names. Updating `model.default` is still recommended.
+Config alone fixes today's failures; the code fix prevents any future config or script from sending a retired ID. The patch lives in this repo because the automation that produced it cannot push to `yukoncal/hermes-agent`.
+
+```bash
+git clone https://github.com/yukoncal/hermes-agent.git
+cd hermes-agent
+git checkout -b fix-retired-claude-models
+git am /path/to/2024/patches/hermes-agent-retired-claude-models.patch
+PYTHONPATH=. python3 -m pytest tests/agent/test_retired_anthropic_models.py -q
+git push -u origin fix-retired-claude-models
+```
+
+What the patch does:
+
+- `agent/retired_anthropic_models.py` — table of retired IDs → supported replacements.
+- `agent/anthropic_adapter.py` — rewrites retired IDs on requests to `api.anthropic.com` (third-party Anthropic-compatible endpoints are left untouched) and logs a warning.
+- `hermes_cli/model_normalize.py` — same rewrite during provider/model normalization, so aggregator slugs are covered.
+- `scripts/audit-retired-anthropic-models.sh` — audit with `--fix`.
+- Tests plus a docs page.
