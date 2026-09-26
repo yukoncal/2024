@@ -141,6 +141,7 @@ python3 -m http.server 8080
 
 ## Notes
 
+- **Retired Claude 3.5 Sonnet API id**: If Anthropic reports failed calls to `claude-3-5-sonnet-20241022` (e.g. key `anthropic-hermes`), switch to **`claude-sonnet-4-6`** — see [docs/ANTHROPIC_RETIRED_MODELS.md](./docs/ANTHROPIC_RETIRED_MODELS.md) and run `./scripts/audit-retired-anthropic-models.sh`.
 - **Safari HTTPS-Only mode**: The dashboard now runs on HTTPS by default to work with Safari's HTTPS-Only mode. See [SAFARI_HTTPS_ONLY_FIX.md](./SAFARI_HTTPS_ONLY_FIX.md) for details and alternatives.
 - **Cursor and localhost**: Cursor cannot call `localhost` for custom OpenAI endpoints — you need a public HTTPS tunnel (use `expose-for-cursor.sh` for Ollama).
 - **Cloud Agents cannot change desktop settings**: Cursor Cloud Agents cannot change your desktop model picker; set **`qwen25`** in **Cursor Desktop** manually.
