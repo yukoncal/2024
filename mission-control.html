@@ -41,7 +41,7 @@
       </div>
       <div class="metric-card">
         <div class="metric-value" id="metric-phases-pass">0</div>
-        <div class="metric-label">Phases Passing (of 9)</div>
+        <div class="metric-label">Phases Passing (<span id="channel-filter-label">Drone</span>)</div>
       </div>
       <div class="metric-card">
         <div class="metric-value" id="metric-phases-pending">9</div>
@@ -51,6 +51,15 @@
         <div class="metric-value">6%</div>
         <div class="metric-label">CTR Pass Threshold</div>
       </div>
+    </div>
+
+    <div class="panel">
+      <label for="channel-filter" class="text-small text-muted">Phase detail channel:</label>
+      <select id="channel-filter" class="channel-select">
+        <option value="drone">Drone Technology</option>
+        <option value="military">Military Bases</option>
+        <option value="family">Family</option>
+      </select>
     </div>
 
     <div class="panel">
