@@ -9,7 +9,8 @@ EXPECT="${OLLAMA_EXPECT:-ollama-ok}"
 
 if [[ -z "$BASE_URL" ]]; then
   echo "error: set OLLAMA_BASE_URL to your live tunnel ending in /v1" >&2
-  echo "example: OLLAMA_BASE_URL='https://YOUR-SUBDOMAIN.trycloudflare.com/v1' ./scripts/verify-endpoint.sh" >&2
+  echo "example: OLLAMA_BASE_URL='https://user:pass@YOUR-SUBDOMAIN.ngrok-free.app/v1' ./scripts/verify-endpoint.sh" >&2
+  echo "tip: with ngrok running and TUNNEL_AUTH set, run ./scripts/print-cursor-base-url.sh and paste its output." >&2
   exit 1
 fi
 
@@ -27,11 +28,27 @@ if [[ "$BASE_URL" == *"ngrok-free"* ]]; then
   echo "      it is likely because Cursor does not send the 'ngrok-skip-browser-warning' header."
 fi
 
+# curl skips Basic auth from URL userinfo when Authorization is set explicitly.
+CURL_OLLAMA_AUTH=()
+if ! python3 -c 'import sys, urllib.parse; sys.exit(0 if urllib.parse.urlparse(sys.argv[1]).username else 1)' "$BASE_URL"; then
+  CURL_OLLAMA_AUTH=(-H "Authorization: Bearer ollama")
+fi
+
+curl_ollama() {
+  if [ "${#CURL_OLLAMA_AUTH[@]}" -gt 0 ]; then
+    curl -sS --fail \
+      -H "ngrok-skip-browser-warning: true" \
+      "${CURL_OLLAMA_AUTH[@]}" \
+      "$@"
+  else
+    curl -sS --fail \
+      -H "ngrok-skip-browser-warning: true" \
+      "$@"
+  fi
+}
+
 echo "==> GET ${BASE_URL}/models"
-models_json=$(curl -sS --fail \
-  -H "ngrok-skip-browser-warning: true" \
-  -H "Authorization: Bearer ollama" \
-  "${BASE_URL}/models")
+models_json=$(curl_ollama "${BASE_URL}/models")
 
 MODELS_JSON="$models_json" python3 -c '
 import json, os, sys
@@ -52,9 +69,7 @@ print(json.dumps({
 }))
 ')
 
-chat_json=$(curl -sS --fail \
-  -H "ngrok-skip-browser-warning: true" \
-  -H "Authorization: Bearer ollama" \
+chat_json=$(curl_ollama \
   -H "Content-Type: application/json" \
   -d "$payload" \
   "${BASE_URL}/chat/completions")

@@ -310,7 +310,7 @@ function renderFeedback(phaseId) {
     .map(
       (f) => `
     <div class="feedback-item">
-      <div class="meta">${f.author} · ${formatTime(f.time)}</div>
+      <div class="meta">${escapeHtml(f.author)} · ${formatTime(f.time)}</div>
       <div>${escapeHtml(f.text)}</div>
     </div>`
     )
