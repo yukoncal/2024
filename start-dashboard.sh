@@ -80,7 +80,7 @@ start_http_server() {
   echo "To fix: See SAFARI_HTTPS_ONLY_FIX.md or disable HTTPS-Only mode in Safari."
   echo ""
   cd "$SCRIPT_DIR"
-  python3 -m http.server $PORT
+  python3 -m http.server $PORT --bind 127.0.0.1
 }
 
 # Main flow

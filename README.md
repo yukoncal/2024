@@ -26,6 +26,7 @@ Use the safe name **`qwen25`** instead.
 
 ```powershell
 .\scripts\setup-qwen.ps1
+$env:TUNNEL_AUTH = 'your-user:your-strong-password'   # required — ngrok basic auth on the tunnel
 .\scripts\expose-for-cursor.ps1
 ```
 
@@ -33,10 +34,13 @@ macOS/Linux:
 
 ```bash
 ./scripts/setup-qwen.sh
+export TUNNEL_AUTH='your-user:your-strong-password'   # required — ngrok basic auth on the tunnel
 ./scripts/expose-for-cursor.sh
 ```
 
-Copy the HTTPS URL the tunnel prints, then add `/v1`.
+On Windows PowerShell, set `$env:TUNNEL_AUTH = 'your-user:your-strong-password'` before `.\scripts\expose-for-cursor.ps1`.
+
+Copy the HTTPS URL the tunnel prints, then add `/v1`. The tunnel URL is protected by the username and password in `TUNNEL_AUTH` (not the `ollama` API key placeholder in Cursor).
 
 ### Paste into Cursor Desktop → Settings → Models
 
@@ -54,7 +58,7 @@ Then:
 
 Do **not** use these names in Cursor: `qwen2.5-coder:latest`, `qwen2.5-coder:7b`, `qwen25:latest`.
 
-Prefer **cloudflared** over free ngrok. Keep the tunnel running while you chat.
+Use **ngrok with `TUNNEL_AUTH`** so the tunnel is not open to the whole internet. Keep the tunnel running while you chat.
 
 ---
 

@@ -35,6 +35,6 @@ echo.
 
 REM Start the HTTP server
 cd /d "%SCRIPT_DIR%"
-python -m http.server %PORT%
+python -m http.server %PORT% --bind 127.0.0.1
 
 pause

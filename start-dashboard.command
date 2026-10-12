@@ -10,4 +10,4 @@ if command -v open > /dev/null; then
   open http://localhost:8080
 fi
 
-python3 -m http.server 8080
+python3 -m http.server 8080 --bind 127.0.0.1

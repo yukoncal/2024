@@ -80,21 +80,16 @@ Note: This requires `sudo` and additional setup.
 
 ---
 
-## Solution 4: Expose via Public HTTPS Tunnel
+## Solution 4: Do not use an unauthenticated public tunnel
 
-Like the Ollama setup, you can expose your local dashboard over a public HTTPS tunnel:
+**Warning:** Commands like `cloudflared tunnel --url http://127.0.0.1:8080` create a **public URL with no login**. Anyone on the internet could reach your dashboard and any data it shows.
 
-```bash
-# Install cloudflared
-brew install cloudflared  # macOS
-# or: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/ (other OS)
+**Prefer local-only access instead:**
 
-# Expose dashboard
-cloudflared tunnel --url http://127.0.0.1:8080
+- Run `./start-dashboard.sh` and open **`https://localhost:8080`** (Solution 1), or
+- Keep the server bound to **`127.0.0.1`** only (the start scripts do this) so it is not reachable from other machines on your network.
 
-# Copy the public HTTPS URL (e.g., https://abc123.trycloudflare.com)
-# Open in Safari without any local issues
-```
+If you truly need remote access, use a tunnel that **requires authentication** (for example ngrok with `--basic-auth=user:password`), treat the credentials like a password, and stop the tunnel when you are done. Do not publish a quick trycloudflare link for the dashboard.
 
 ---
 

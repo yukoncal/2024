@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 # Expose local Ollama as public HTTPS so Cursor's backend can reach it.
-# Prefer Cloudflare Tunnel; fall back to ngrok if installed.
+# Requires TUNNEL_AUTH (user:pass) so ngrok can enforce HTTP basic auth on the tunnel.
 set -euo pipefail
 
 PORT="${OLLAMA_PORT:-11434}"
 TARGET="http://127.0.0.1:${PORT}"
+
+if [[ -z "${TUNNEL_AUTH:-}" || "${TUNNEL_AUTH}" != *:* ]]; then
+  echo "TUNNEL_AUTH must be set to user:password before exposing Ollama on the public internet." >&2
+  echo "Example: export TUNNEL_AUTH='myuser:my-strong-password'" >&2
+  echo "Then run this script again. ngrok will require that login on the tunnel URL." >&2
+  exit 1
+fi
 
 if ! curl -fsS "${TARGET}/api/tags" >/dev/null 2>&1; then
   echo "Ollama is not reachable at ${TARGET}" >&2
@@ -18,34 +25,26 @@ as the OpenAI Base URL override. You need a public HTTPS URL that ends in /v1.
 
 EOF
 
-if command -v cloudflared >/dev/null 2>&1; then
-  echo "Using Cloudflare Tunnel (cloudflared)..."
-  echo "Copy the https://….trycloudflare.com URL it prints, then set Cursor Base URL to:"
-  echo "  https://YOUR-SUBDOMAIN.trycloudflare.com/v1"
-  echo
-  exec cloudflared tunnel --url "${TARGET}"
-fi
-
 if command -v ngrok >/dev/null 2>&1; then
-  echo "Using ngrok..."
+  echo "Using ngrok with HTTP basic auth (TUNNEL_AUTH)..."
   echo "Copy the https://….ngrok-free.app URL it prints, then set Cursor Base URL to:"
   echo "  https://YOUR-SUBDOMAIN.ngrok-free.app/v1"
+  echo "Anyone who hits the tunnel URL must authenticate with the user:password from TUNNEL_AUTH."
   echo
-  exec ngrok http "${PORT}"
+  exec ngrok http "${PORT}" --basic-auth="${TUNNEL_AUTH}"
 fi
 
 cat <<'EOF'
-Neither cloudflared nor ngrok is installed.
+ngrok is not installed (required for an authenticated tunnel).
 
-Install one of:
-  Cloudflare Tunnel:
-    macOS:  brew install cloudflared
-    Linux:  https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
-    Then:   cloudflared tunnel --url http://127.0.0.1:11434
+Quick Cloudflare trycloudflare tunnels have no built-in login — this script refuses to
+start an unauthenticated public Ollama endpoint.
 
-  ngrok:
-    https://ngrok.com/download
-    Then:   ngrok http 11434
+Install ngrok:
+  https://ngrok.com/download
+Then:
+  export TUNNEL_AUTH='user:password'
+  ngrok http 11434 --basic-auth="$TUNNEL_AUTH"
 
 After the tunnel is up, in Cursor Settings → Models:
   OpenAI API Key:            ollama
