@@ -31,9 +31,11 @@ as the OpenAI Base URL override. You need a public HTTPS URL that ends in /v1.
 $ngrok = Get-Command ngrok -ErrorAction SilentlyContinue
 if ($ngrok) {
     Write-Host "Using ngrok with HTTP basic auth (TUNNEL_AUTH)..."
-    Write-Host "Copy the https://….ngrok-free.app URL it prints, then set Cursor Base URL to:"
-    Write-Host "  https://YOUR-SUBDOMAIN.ngrok-free.app/v1"
-    Write-Host "Anyone who hits the tunnel URL must authenticate with the user:password from TUNNEL_AUTH."
+    Write-Host ""
+    Write-Host "Leave this window open. In a SECOND PowerShell window (same TUNNEL_AUTH), run:"
+    Write-Host "  .\scripts\print-cursor-base-url.ps1"
+    Write-Host "That prints the full Base URL to paste into Cursor (includes your tunnel login)."
+    Write-Host "Step-by-step help: EXPOSE_OLLAMA_BEGINNER.md"
     Write-Host ""
     & ngrok http $Port --basic-auth=$env:TUNNEL_AUTH
     exit $LASTEXITCODE

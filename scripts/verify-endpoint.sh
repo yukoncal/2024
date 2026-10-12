@@ -9,7 +9,8 @@ EXPECT="${OLLAMA_EXPECT:-ollama-ok}"
 
 if [[ -z "$BASE_URL" ]]; then
   echo "error: set OLLAMA_BASE_URL to your live tunnel ending in /v1" >&2
-  echo "example: OLLAMA_BASE_URL='https://YOUR-SUBDOMAIN.trycloudflare.com/v1' ./scripts/verify-endpoint.sh" >&2
+  echo "example: OLLAMA_BASE_URL='https://user:pass@YOUR-SUBDOMAIN.ngrok-free.app/v1' ./scripts/verify-endpoint.sh" >&2
+  echo "tip: with ngrok running and TUNNEL_AUTH set, run ./scripts/print-cursor-base-url.sh and paste its output." >&2
   exit 1
 fi
 

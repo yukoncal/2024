@@ -16,6 +16,8 @@ This repository contains two main projects:
 
 # Connect Ollama to Cursor
 
+> **Not a programmer?** Follow **[EXPOSE_OLLAMA_BEGINNER.md](./EXPOSE_OLLAMA_BEGINNER.md)** for fix #1 (tunnel + Cursor settings) with copy-paste steps.
+
 ## Fix qwen2.5 in Cursor (do this)
 
 `qwen2.5-coder:latest` **does not work** in Cursor (`.` and `:` are rejected → “The model you chose is not available”).
@@ -40,7 +42,7 @@ export TUNNEL_AUTH='your-user:your-strong-password'   # required — ngrok basic
 
 On Windows PowerShell, set `$env:TUNNEL_AUTH = 'your-user:your-strong-password'` before `.\scripts\expose-for-cursor.ps1`.
 
-Copy the HTTPS URL the tunnel prints, then add `/v1`. The tunnel URL is protected by the username and password in `TUNNEL_AUTH` (not the `ollama` API key placeholder in Cursor).
+With ngrok running, open a **second** terminal and run `./scripts/print-cursor-base-url.sh` (or `.\scripts\print-cursor-base-url.ps1` on Windows) with the same `TUNNEL_AUTH`. Paste that full `https://…/v1` line into Cursor. The tunnel login is **not** the `ollama` API key placeholder in Cursor settings.
 
 ### Paste into Cursor Desktop → Settings → Models
 

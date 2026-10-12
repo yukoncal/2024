@@ -27,9 +27,11 @@ EOF
 
 if command -v ngrok >/dev/null 2>&1; then
   echo "Using ngrok with HTTP basic auth (TUNNEL_AUTH)..."
-  echo "Copy the https://….ngrok-free.app URL it prints, then set Cursor Base URL to:"
-  echo "  https://YOUR-SUBDOMAIN.ngrok-free.app/v1"
-  echo "Anyone who hits the tunnel URL must authenticate with the user:password from TUNNEL_AUTH."
+  echo
+  echo "Leave this window open. In a SECOND terminal (same TUNNEL_AUTH), run:"
+  echo "  ./scripts/print-cursor-base-url.sh"
+  echo "That prints the full Base URL to paste into Cursor (includes your tunnel login)."
+  echo "Step-by-step help: EXPOSE_OLLAMA_BEGINNER.md"
   echo
   exec ngrok http "${PORT}" --basic-auth="${TUNNEL_AUTH}"
 fi
