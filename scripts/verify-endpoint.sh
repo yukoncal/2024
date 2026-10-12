@@ -28,10 +28,16 @@ if [[ "$BASE_URL" == *"ngrok-free"* ]]; then
   echo "      it is likely because Cursor does not send the 'ngrok-skip-browser-warning' header."
 fi
 
+# curl skips Basic auth from URL userinfo when Authorization is set explicitly.
+CURL_OLLAMA_AUTH=()
+if ! python3 -c 'import sys, urllib.parse; sys.exit(0 if urllib.parse.urlparse(sys.argv[1]).username else 1)' "$BASE_URL"; then
+  CURL_OLLAMA_AUTH=(-H "Authorization: Bearer ollama")
+fi
+
 echo "==> GET ${BASE_URL}/models"
 models_json=$(curl -sS --fail \
   -H "ngrok-skip-browser-warning: true" \
-  -H "Authorization: Bearer ollama" \
+  "${CURL_OLLAMA_AUTH[@]}" \
   "${BASE_URL}/models")
 
 MODELS_JSON="$models_json" python3 -c '
@@ -55,7 +61,7 @@ print(json.dumps({
 
 chat_json=$(curl -sS --fail \
   -H "ngrok-skip-browser-warning: true" \
-  -H "Authorization: Bearer ollama" \
+  "${CURL_OLLAMA_AUTH[@]}" \
   -H "Content-Type: application/json" \
   -d "$payload" \
   "${BASE_URL}/chat/completions")
