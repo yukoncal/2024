@@ -34,11 +34,21 @@ if ! python3 -c 'import sys, urllib.parse; sys.exit(0 if urllib.parse.urlparse(s
   CURL_OLLAMA_AUTH=(-H "Authorization: Bearer ollama")
 fi
 
+curl_ollama() {
+  if [ "${#CURL_OLLAMA_AUTH[@]}" -gt 0 ]; then
+    curl -sS --fail \
+      -H "ngrok-skip-browser-warning: true" \
+      "${CURL_OLLAMA_AUTH[@]}" \
+      "$@"
+  else
+    curl -sS --fail \
+      -H "ngrok-skip-browser-warning: true" \
+      "$@"
+  fi
+}
+
 echo "==> GET ${BASE_URL}/models"
-models_json=$(curl -sS --fail \
-  -H "ngrok-skip-browser-warning: true" \
-  "${CURL_OLLAMA_AUTH[@]}" \
-  "${BASE_URL}/models")
+models_json=$(curl_ollama "${BASE_URL}/models")
 
 MODELS_JSON="$models_json" python3 -c '
 import json, os, sys
@@ -59,9 +69,7 @@ print(json.dumps({
 }))
 ')
 
-chat_json=$(curl -sS --fail \
-  -H "ngrok-skip-browser-warning: true" \
-  "${CURL_OLLAMA_AUTH[@]}" \
+chat_json=$(curl_ollama \
   -H "Content-Type: application/json" \
   -d "$payload" \
   "${BASE_URL}/chat/completions")
