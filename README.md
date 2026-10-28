@@ -16,6 +16,8 @@ This repository contains two main projects:
 
 # Connect Ollama to Cursor
 
+> **Not a programmer?** Follow **[EXPOSE_OLLAMA_BEGINNER.md](./EXPOSE_OLLAMA_BEGINNER.md)** for fix #1 (tunnel + Cursor settings) with copy-paste steps.
+
 ## Fix qwen2.5 in Cursor (do this)
 
 `qwen2.5-coder:latest` **does not work** in Cursor (`.` and `:` are rejected → “The model you chose is not available”).
@@ -26,6 +28,7 @@ Use the safe name **`qwen25`** instead.
 
 ```powershell
 .\scripts\setup-qwen.ps1
+$env:TUNNEL_AUTH = 'your-user:your-strong-password'   # required — ngrok basic auth on the tunnel
 .\scripts\expose-for-cursor.ps1
 ```
 
@@ -33,10 +36,13 @@ macOS/Linux:
 
 ```bash
 ./scripts/setup-qwen.sh
+export TUNNEL_AUTH='your-user:your-strong-password'   # required — ngrok basic auth on the tunnel
 ./scripts/expose-for-cursor.sh
 ```
 
-Copy the HTTPS URL the tunnel prints, then add `/v1`.
+On Windows PowerShell, set `$env:TUNNEL_AUTH = 'your-user:your-strong-password'` before `.\scripts\expose-for-cursor.ps1`.
+
+With ngrok running, open a **second** terminal and run `./scripts/print-cursor-base-url.sh` (or `.\scripts\print-cursor-base-url.ps1` on Windows) with the same `TUNNEL_AUTH`. Paste that full `https://…/v1` line into Cursor. The tunnel login is **not** the `ollama` API key placeholder in Cursor settings.
 
 ### Paste into Cursor Desktop → Settings → Models
 
@@ -54,7 +60,7 @@ Then:
 
 Do **not** use these names in Cursor: `qwen2.5-coder:latest`, `qwen2.5-coder:7b`, `qwen25:latest`.
 
-Prefer **cloudflared** over free ngrok. Keep the tunnel running while you chat.
+Use **ngrok with `TUNNEL_AUTH`** so the tunnel is not open to the whole internet. Keep the tunnel running while you chat.
 
 ---
 
